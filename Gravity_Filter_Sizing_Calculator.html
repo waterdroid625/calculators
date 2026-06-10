@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Bed Gravity Filter Sizing Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10151c; --paper:#f4f1ea; --panel:#ffffff;
+    --line:#d6d0c4; --line-strong:#b7b0a1; --muted:#6b6457;
+    --accent:#0b5e6b; --accent-2:#c75300;
+    --ok:#1f7a44; --ok-bg:#e2f1e7; --ng:#b3261e; --ng-bg:#fae5e3;
+    --grid:rgba(11,94,107,.06);
+    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 24px -16px rgba(16,21,28,.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"IBM Plex Sans",system-ui,sans-serif; color:var(--ink);
+    background:
+      linear-gradient(var(--grid) 1px,transparent 1px) 0 0/22px 22px,
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/22px 22px,
+      var(--paper);
+    line-height:1.45; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;}
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
+
+  .resetbtn{font-family:"IBM Plex Sans",sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.5px;
+    text-transform:uppercase;cursor:pointer;background:transparent;color:var(--accent-2);
+    border:1.5px solid var(--accent-2);padding:6px 12px;margin-top:10px;align-self:flex-start;transition:.12s;}
+  .resetbtn:hover{background:var(--accent-2);color:#fff;}
+  header{border:1.5px solid var(--ink);background:var(--panel);box-shadow:var(--shadow);}
+  .titlebar{display:flex;flex-wrap:wrap;align-items:stretch;}
+  .titlebar .main{flex:1 1 380px;padding:16px 20px;border-right:1px solid var(--line);
+    display:flex;flex-direction:column;justify-content:center;}
+  .titlebar .main h1{margin:0;font-size:20px;letter-spacing:.3px;font-weight:700;}
+  .titlebar .main p{margin:3px 0 0;color:var(--muted);font-size:12.5px;}
+  .titlebar .meta{flex:1 1 300px;display:grid;grid-template-columns:repeat(2,1fr);}
+  .titlebar .meta label{display:flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;
+    letter-spacing:.6px;color:var(--muted);border-left:1px solid var(--line);
+    border-bottom:1px solid var(--line);padding:8px 12px;}
+  .titlebar .meta input{border:none;background:transparent;font-family:"IBM Plex Mono",monospace;
+    font-size:13px;color:var(--ink);width:100%;min-width:0;outline:none;}
+
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;margin-top:18px;}
+  @media(max-width:880px){.grid{grid-template-columns:1fr;}}
+
+  .card{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);}
+  .card > .cap{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#fff;
+    background:var(--ink);padding:7px 14px;display:flex;align-items:center;gap:9px;}
+  .card > .cap::before{content:"";width:7px;height:7px;background:var(--accent-2);display:inline-block;}
+  .card .body{padding:14px 16px 18px;}
+
+  .row{margin:0 0 14px;} .row:last-child{margin-bottom:0;}
+  .row .lab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px;}
+  .row .lab span:first-child{font-size:13px;font-weight:500;}
+  .row .lab .unit{font-size:11px;color:var(--muted);letter-spacing:.4px;text-align:right;}
+  .val{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:600;color:var(--accent);
+    border:1px solid var(--line-strong);background:#fbfaf7;padding:4px 8px;width:104px;text-align:right;outline:none;}
+  .val:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(11,94,107,.15);}
+  .sliderline{display:flex;align-items:center;gap:12px;}
+  .sliderline.boxonly{justify-content:flex-end;}
+  input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:3px;background:var(--line-strong);
+    border-radius:2px;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);
+    border:3px solid #fff;box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
+
+  .seg{display:inline-flex;border:1px solid var(--line-strong);overflow:hidden;}
+  .seg button{font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:500;border:none;
+    background:#fbfaf7;color:var(--muted);padding:7px 13px;cursor:pointer;border-right:1px solid var(--line-strong);transition:.12s;
+    display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .seg button:last-child{border-right:none;}
+  .seg button.on{background:var(--accent);color:#fff;}
+  .seg.small button{padding:5px 11px;font-size:12px;}
+  .shapebox{display:block;border:1.5px solid currentColor;background:transparent;}
+
+  .autobtn{font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;
+    background:var(--accent-2);color:#fff;border:none;padding:8px 14px;letter-spacing:.3px;}
+  .autobtn:hover{filter:brightness(1.06);}
+  .autocap{font-size:11px;color:var(--muted);margin-left:10px;}
+  .provcap{font-size:11.5px;color:var(--muted);margin-top:9px;}
+  .provcap b{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-size:13px;}
+
+  .subhdr{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);
+    margin:4px 0 12px;padding-bottom:6px;border-bottom:1px dashed var(--line);}
+
+  table.qto{width:100%;border-collapse:collapse;font-size:13px;}
+  table.qto td{padding:7px 10px;border-bottom:1px solid var(--line);}
+  table.qto tr td:first-child{color:var(--muted);}
+  table.qto tr td:last-child{font-family:"IBM Plex Mono",monospace;font-weight:600;text-align:right;}
+  table.qto tr.head td{background:#fbfaf7;color:var(--ink);font-weight:600;text-transform:uppercase;
+    font-size:10.5px;letter-spacing:1px;border-bottom:1px solid var(--line-strong);}
+  table.qto tr.major td:last-child{color:var(--accent);font-size:15px;}
+  table.qto tr.major td:first-child{color:var(--ink);font-weight:500;}
+  table.qto tr.cost td:last-child{color:var(--accent-2);font-size:15px;}
+  table.qto tr.cost td:first-child{color:var(--ink);font-weight:600;}
+
+  .derived{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+  .derived .d{display:flex;justify-content:space-between;align-items:baseline;
+    padding:7px 0;border-bottom:1px dotted var(--line);}
+  .derived .d .k{font-size:12.5px;color:var(--muted);}
+  .derived .d .v{font-family:"IBM Plex Mono",monospace;font-size:13.5px;font-weight:600;}
+  @media(max-width:520px){.derived{grid-template-columns:1fr;}}
+
+  .scen{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:560px){.scen{grid-template-columns:1fr;}}
+  .scol{border:1px solid var(--line-strong);background:#fbfaf7;}
+  .scol h3{margin:0;font-size:12px;letter-spacing:.6px;text-transform:uppercase;
+    padding:9px 13px;color:#fff;display:flex;justify-content:space-between;align-items:center;}
+  .scol.design h3{background:var(--accent-2);}
+  .scol.allin h3{background:var(--accent);}
+  .scol h3 small{font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;opacity:.92;}
+  .scol .met{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--line);}
+  .scol .met:last-child{border-bottom:none;}
+  .scol .met .name{font-size:12.5px;color:var(--ink);}
+  .scol .met .name em{font-style:normal;color:var(--muted);font-size:11px;display:block;}
+  .scol .met .big{font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600;text-align:right;}
+  .scol .met .big small{font-size:11px;font-weight:500;color:var(--muted);margin-left:3px;}
+
+  .badge{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:.5px;}
+  .badge.ok{background:var(--ok-bg);color:var(--ok);} .badge.ng{background:var(--ng-bg);color:var(--ng);}
+
+  .crit{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);
+    border-top:1px dashed var(--line);margin-top:14px;padding-top:12px;}
+  .crit .citem{display:flex;align-items:center;gap:7px;}
+
+  .note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.5;}
+  .foot{margin-top:18px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.3px;}
+
+  /* plan view */
+  .planwrap{border:1px solid var(--line-strong);background:#fbfaf7;padding:12px;margin-top:6px;}
+  .planwrap svg{display:block;width:100%;height:auto;}
+  .plancap{font-size:11px;color:var(--muted);margin-top:7px;text-align:center;font-family:"IBM Plex Mono",monospace;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="titlebar">
+      <div class="main">
+        <h1>Deep Bed Gravity Filter Sizing</h1>
+        <p>GAC gravity filter calculator &middot; common-wall grid &middot; EBCT / HLR &middot; concrete takeoff</p>
+        <button class="resetbtn" id="resetbtn" title="Restore all inputs to defaults">&#8635; Reset to defaults</button>
+      </div>
+      <div class="meta">
+        <label>Project <input id="m_proj" placeholder="—"></label>
+        <label>Calc No. <input id="m_calc" placeholder="—"></label>
+        <label>By <input id="m_by" placeholder="—"></label>
+        <label>Date <input id="m_date" placeholder="—"></label>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ============ INPUTS ============ -->
+    <section class="card">
+      <div class="cap">Inputs</div>
+      <div class="body">
+
+        <div class="subhdr">Hydraulics</div>
+        <div class="row">
+          <div class="lab"><span>Design flow, total</span><span class="unit">mgd</span></div>
+          <div class="sliderline">
+            <input type="range" id="flow_s" min="0" max="75" step="0.5" value="60">
+            <input type="text" class="val mono" id="flow_n" value="60">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="lab"><span>Peak backwash loading rate</span><span class="unit">gpm/sf</span></div>
+          <div class="sliderline">
+            <input type="range" id="bw_s" min="8" max="25" step="0.5" value="12">
+            <input type="text" class="val mono" id="bw_n" value="12">
+          </div>
+        </div>
+
+        <div class="subhdr">Filter cell geometry</div>
+        <div class="row">
+          <div class="lab"><span>Filter bed shape (aspect ratio, W : L)</span></div>
+          <div class="seg" id="seg_ar">
+            <button data-v="1"><svg class="shapebox" width="26" height="26"><rect x="1" y="1" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"/></svg>1 : 1</button>
+            <button data-v="1.5" class="on"><svg class="shapebox" width="38" height="26"><rect x="1" y="1" width="36" height="24" fill="none" stroke="currentColor" stroke-width="2"/></svg>1 : 1.5</button>
+            <button data-v="2"><svg class="shapebox" width="50" height="26"><rect x="1" y="1" width="48" height="24" fill="none" stroke="currentColor" stroke-width="2"/></svg>1 : 2</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>Filter cell width (W)</span><span class="unit">ft &middot; 2-ft increments</span></div>
+          <div class="sliderline">
+            <input type="range" id="wid_s" min="4" max="40" step="2" value="20">
+            <input type="text" class="val mono" id="wid_n" value="20">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="lab"><span>Number of cells (total installed)</span><span class="unit">multiple of grid rows</span></div>
+          <div class="sliderline">
+            <input type="range" id="cells_s" min="2" max="40" step="2" value="8">
+            <input type="text" class="val mono" id="cells_n" value="8">
+          </div>
+          <div style="margin-top:9px;display:flex;align-items:center;flex-wrap:wrap;">
+            <button class="autobtn" id="autobtn">Auto-size cells</button>
+            <span class="autocap" id="autocap">sizes duty cells to HLR &amp; EBCT, adds standby, rounds to even</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="lab"><span>Grid rows</span><span class="unit">cells rounded to a multiple of rows</span></div>
+          <div class="seg small" id="seg_rows">
+            <button data-v="2" class="on">2 rows</button>
+            <button data-v="4">4 rows</button>
+            <button data-v="6">6 rows</button>
+            <button data-v="8">8 rows</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="lab"><span>Redundancy (standby cells)</span></div>
+          <div class="seg small" id="seg_red">
+            <button data-v="0">N+0</button>
+            <button data-v="1">N+1</button>
+            <button data-v="2" class="on">N+2</button>
+            <button data-v="3">N+3</button>
+            <button data-v="4">N+4</button>
+          </div>
+          <div class="provcap">Duty cells at design: <b id="prov_duty">—</b> &nbsp;&middot;&nbsp; Provided (duty + standby): <b id="prov_tot">—</b></div>
+        </div>
+
+        <div class="subhdr">Structure</div>
+        <div class="row">
+          <div class="lab"><span>Common wall thickness</span><span class="unit">ft</span></div>
+          <div class="sliderline boxonly"><input type="text" class="val mono" id="wt_n" value="1"></div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>Filter box depth (wall height)</span><span class="unit">ft</span></div>
+          <div class="sliderline">
+            <input type="range" id="bh_s" min="8" max="30" step="1" value="16">
+            <input type="text" class="val mono" id="bh_n" value="16">
+          </div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>Base slab thickness</span><span class="unit">ft</span></div>
+          <div class="sliderline boxonly"><input type="text" class="val mono" id="bs_n" value="2"></div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>Elevated slab thickness (underdrain deck)</span><span class="unit">ft</span></div>
+          <div class="sliderline boxonly"><input type="text" class="val mono" id="es_n" value="1.5"></div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>Misc. concrete factor</span><span class="unit">% &middot; pipe galleries, channels, misc. structure</span></div>
+          <div class="sliderline boxonly"><input type="text" class="val mono" id="mf_n" value="15"></div>
+        </div>
+
+        <div class="subhdr">Media bed (GAC)</div>
+        <div class="row">
+          <div class="lab"><span>Media depth</span><span class="unit">ft</span></div>
+          <div class="sliderline">
+            <input type="range" id="md_s" min="2" max="12" step="0.5" value="5">
+            <input type="text" class="val mono" id="md_n" value="5">
+          </div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>Operational media density</span><span class="unit">g/cc<br>(after soaking &amp; backwashing)</span></div>
+          <div class="sliderline boxonly"><input type="text" class="val mono" id="dens_n" value="0.485"></div>
+        </div>
+
+        <div class="subhdr">Stainless steel underdrain</div>
+        <div class="row">
+          <div class="lab"><span>Lateral coverage</span><span class="unit">LF of lateral per sf of filter area</span></div>
+          <div class="sliderline boxonly"><input type="text" class="val mono" id="udc_n" value="1.0"></div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>SS underdrain, installed</span><span class="unit">$/LF &middot; planning-level, confirm w/ vendor</span></div>
+          <div class="sliderline">
+            <input type="range" id="udcost_s" min="25" max="200" step="5" value="75">
+            <input type="text" class="val mono" id="udcost_n" value="75">
+          </div>
+        </div>
+
+        <div class="subhdr">Unit costs</div>
+        <div class="row">
+          <div class="lab"><span>Cost per pound of media</span><span class="unit">$/lb</span></div>
+          <div class="sliderline">
+            <input type="range" id="mcost_s" min="2" max="4" step="0.05" value="2.25">
+            <input type="text" class="val mono" id="mcost_n" value="2.25">
+          </div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>ACI 350 concrete, installed</span><span class="unit">$/cf</span></div>
+          <div class="sliderline">
+            <input type="range" id="ccost_s" min="25" max="75" step="1" value="45">
+            <input type="text" class="val mono" id="ccost_n" value="45">
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ RESULTS ============ -->
+    <section class="card">
+      <div class="cap">Results</div>
+      <div class="body">
+
+        <div class="subhdr">Plan view (to scale)</div>
+        <div class="planwrap">
+          <svg id="plan" viewBox="0 0 100 40" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="plancap" id="plancap">—</div>
+        </div>
+
+        <div class="subhdr" style="margin-top:18px;">Per-cell geometry</div>
+        <div class="derived">
+          <div class="d"><span class="k">Cell width (W)</span><span class="v"><span id="o_w">—</span> ft</span></div>
+          <div class="d"><span class="k">Cell length (L)</span><span class="v"><span id="o_l">—</span> ft</span></div>
+          <div class="d"><span class="k">Cell area</span><span class="v"><span id="o_area">—</span> sf</span></div>
+          <div class="d"><span class="k">Total filter area (installed)</span><span class="v"><span id="o_atot">—</span> sf</span></div>
+          <div class="d"><span class="k">Media volume per cell</span><span class="v"><span id="o_mv">—</span> cf</span></div>
+          <div class="d"><span class="k">Bed volume per cell</span><span class="v"><span id="o_bvgal">—</span> gal</span></div>
+          <div class="d"><span class="k">Peak backwash flow (one cell)</span><span class="v"><span id="o_bwgpm">—</span> gpm</span></div>
+          <div class="d"><span class="k">Peak backwash flow (one cell)</span><span class="v"><span id="o_bwmgd">—</span> mgd</span></div>
+          <div class="d"><span class="k">Expanded bed depth</span><span class="v"><span id="o_xdepth">—</span> ft</span></div>
+          <div class="d"><span class="k">Freeboard above expanded bed</span><span class="v"><span id="o_fb">—</span> ft</span></div>
+        </div>
+
+        <div class="subhdr" style="margin-top:18px;">Hydraulics &amp; contact time</div>
+        <div class="scen">
+          <div class="scol design">
+            <h3>At design <small id="h_design">N duty cells</small></h3>
+            <div class="met"><div class="name">Flow / cell<em>gpm</em></div><div class="big"><span id="d_qtr">—</span></div></div>
+            <div class="met"><div class="name">HLR<em>gpm/sf</em></div><div class="big"><span id="d_hlr">—</span> <span id="d_hlr_b" class="badge">—</span></div></div>
+            <div class="met"><div class="name">EBCT / filter<em>minutes</em></div><div class="big"><span id="d_ebv">—</span> <span id="d_ebv_b" class="badge">—</span></div></div>
+          </div>
+          <div class="scol allin">
+            <h3>All in service <small id="h_allin">all cells running</small></h3>
+            <div class="met"><div class="name">Flow / cell<em>gpm</em></div><div class="big"><span id="a_qtr">—</span></div></div>
+            <div class="met"><div class="name">HLR<em>gpm/sf</em></div><div class="big"><span id="a_hlr">—</span> <span id="a_hlr_b" class="badge">—</span></div></div>
+            <div class="met"><div class="name">EBCT / filter<em>minutes</em></div><div class="big"><span id="a_ebv">—</span> <span id="a_ebv_b" class="badge">—</span></div></div>
+          </div>
+        </div>
+
+        <div class="crit">
+          <span style="color:var(--ink);font-weight:600;">Criteria:</span>
+          <div class="citem">HLR <input type="text" class="val mono" id="c_hlr_lo" value="2" style="width:50px;"> – <input type="text" class="val mono" id="c_hlr_hi" value="10" style="width:50px;"> gpm/sf</div>
+          <div class="citem">EBCT/filter ≥ <input type="text" class="val mono" id="c_ebct" value="10" style="width:50px;"> min</div>
+          <div class="citem">Bed expansion <input type="text" class="val mono" id="c_exp" value="30" style="width:50px;"> %</div>
+        </div>
+
+        <div class="subhdr" style="margin-top:18px;">Quantity takeoff</div>
+        <table class="qto">
+          <tr class="head"><td>Item</td><td>Qty</td></tr>
+          <tr class="major"><td>Cells installed (total)</td><td id="q_ctot">—</td></tr>
+          <tr><td>Duty / standby cells</td><td id="q_cds">—</td></tr>
+          <tr><td>Grid arrangement</td><td id="q_grid">—</td></tr>
+          <tr class="major"><td>Overall plan footprint</td><td id="q_plan">—</td></tr>
+          <tr><td>Footprint area</td><td id="q_parea">—</td></tr>
+          <tr class="head"><td>Concrete (ACI 350)</td><td>Volume</td></tr>
+          <tr><td>Base slab</td><td id="q_slab">—</td></tr>
+          <tr><td>Walls</td><td id="q_walls">—</td></tr>
+          <tr><td>Elevated slab (underdrain deck)</td><td id="q_eslab">—</td></tr>
+          <tr><td>Subtotal, filter box</td><td id="q_csub">—</td></tr>
+          <tr><td>Misc. concrete allowance (<span id="q_mfpct">—</span>%)</td><td id="q_misc">—</td></tr>
+          <tr class="major"><td>Total concrete</td><td id="q_ctotcf">—</td></tr>
+          <tr><td>Total concrete</td><td id="q_ctotcy">—</td></tr>
+          <tr class="cost"><td>Cost of concrete, installed</td><td id="q_ccost">—</td></tr>
+          <tr class="head"><td>Stainless steel underdrain</td><td>Qty</td></tr>
+          <tr><td>Lateral length per cell</td><td id="q_udcell">—</td></tr>
+          <tr class="major"><td>Total lateral length</td><td id="q_udtot">—</td></tr>
+          <tr class="cost"><td>Cost of SS underdrains, installed</td><td id="q_udcost">—</td></tr>
+          <tr class="head"><td>Media (GAC)</td><td>Qty</td></tr>
+          <tr><td>Media per cell</td><td id="q_mc">—</td></tr>
+          <tr class="major"><td>Total media</td><td id="q_mtot">—</td></tr>
+          <tr><td>Total media</td><td id="q_mton">—</td></tr>
+          <tr class="cost"><td>Cost of initial media</td><td id="q_mcost">—</td></tr>
+          <tr class="cost"><td>Total (concrete + underdrains + media)</td><td id="q_tcost">—</td></tr>
+        </table>
+
+        <div class="note">
+          Grid is R rows &times; C columns with common walls; cell count rounds to a multiple of the selected row count. Walls: 3 longitudinal (2 exterior + 1 center, full plan length) + (C+1) transverse (spanning 2L), all at the common wall thickness and full box depth. Elevated slab area = sum of clear cell areas. EBCT/filter = bed volume (gal) ÷ flow per cell (gpm); HLR = flow per cell ÷ cell area. Badges judged at the <b>design</b> condition (duty cells carrying full flow, standby out for backwash). Freeboard = box depth − elevated slab − expanded media depth. Peak backwash flow assumes one cell washed at a time at the peak loading rate. SS underdrain laterals (AWI Phoenix / Ovivo folded-plate type) are laid edge-to-edge; default coverage 1.0 LF/sf reflects ~12-in-wide laterals. The $/LF default is planning-level — confirm with vendor quotes.
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <div class="foot">EBCT = BV gal ÷ cell gpm &middot; HLR = cell gpm ÷ cell area &middot; density lb/cf = g/cc &times; 62.428 &middot; concrete priced per installed cf</div>
+
+</div>
+
+<script>
+(function(){
+  var S = { flow:60, ar:1.5, wid:20, cells:8, red:2,
+            wt:1, bh:16, bs:2, es:1.5, mf:15,
+            md:5, dens:0.485, mcost:2.25, ccost:45,
+            bw:12, udc:1.0, udcost:75, rows:2 };
+  var GAL_PER_CF = 7.48052, LBCF_PER_GCC = 62.428;
+  var govWord = "";
+
+  function $(id){return document.getElementById(id);}
+  function num(v){var x=parseFloat(v);return isFinite(x)?x:0;}
+  function fmt(x,d){ if(!isFinite(x)) return "—";
+    return x.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function fmtUSD(x){ if(!isFinite(x)) return "—";
+    return "$"+x.toLocaleString("en-US",{maximumFractionDigits:0}); }
+
+  function bind(key, sId, nId, opts){
+    opts=opts||{}; var s=sId?$(sId):null, n=$(nId);
+    if(s) s.addEventListener("input",function(){ n.value=this.value; S[key]=num(this.value); compute(); });
+    if(n) n.addEventListener("input",function(){
+      var v=num(this.value); if(opts.min!=null) v=Math.max(opts.min,v);
+      if(opts.even){ var r0=S.rows; v=Math.max(r0,r0*Math.round(v/r0)); }
+      S[key]=v; if(s){ var sv=Math.min(Math.max(v,num(s.min)),num(s.max)); s.value=sv; } compute();
+    });
+    if(n) n.addEventListener("blur",function(){ this.value=S[key]; });
+  }
+  bind("flow","flow_s","flow_n",{min:0});
+  bind("wid","wid_s","wid_n",{min:2});
+  bind("cells","cells_s","cells_n",{min:2,even:true});
+  bind("wt",null,"wt_n",{min:0});
+  bind("bh","bh_s","bh_n",{min:1});
+  bind("bs",null,"bs_n",{min:0});
+  bind("es",null,"es_n",{min:0});
+  bind("md","md_s","md_n",{min:0.5});
+  bind("dens",null,"dens_n",{min:0.01});
+  bind("mcost","mcost_s","mcost_n",{min:0});
+  bind("ccost","ccost_s","ccost_n",{min:0});
+  bind("bw","bw_s","bw_n",{min:0});
+  bind("mf",null,"mf_n",{min:0});
+  bind("udc",null,"udc_n",{min:0});
+  bind("udcost","udcost_s","udcost_n",{min:0});
+
+  function segBind(wrapId, fn){
+    var w=$(wrapId);
+    w.querySelectorAll("button").forEach(function(b){
+      b.addEventListener("click",function(){
+        w.querySelectorAll("button").forEach(function(x){x.classList.remove("on");});
+        b.classList.add("on"); fn(b.getAttribute("data-v")); compute();
+      });
+    });
+  }
+  segBind("seg_ar", function(v){ S.ar=parseFloat(v); });
+  segBind("seg_red", function(v){ S.red=parseInt(v,10); });
+  segBind("seg_rows", function(v){ S.rows=parseInt(v,10); var s=$("cells_s"); s.step=S.rows; setCells(S.cells); });
+
+  ["c_hlr_lo","c_hlr_hi","c_ebct","c_exp"].forEach(function(id){ $(id).addEventListener("input",compute); });
+
+  function geom(){
+    var W=S.wid, L=W*S.ar, area=W*L;
+    return {W:W,L:L,area:area,bvCf:area*S.md,bvGal:area*S.md*GAL_PER_CF};
+  }
+
+  function setCells(n){
+    var R0=S.rows;
+    n=Math.max(R0,R0*Math.ceil(n/R0));
+    S.cells=n; $("cells_n").value=n;
+    var s=$("cells_s"); s.value=Math.min(Math.max(n,num(s.min)),num(s.max));
+  }
+
+  $("autobtn").addEventListener("click",function(){
+    var g=geom();
+    var Qtot=S.flow*1000000/1440;
+    var hlrHi=num($("c_hlr_hi").value), ebMin=num($("c_ebct").value);
+    var nHlr = (g.area>0&&hlrHi>0)? Math.ceil(Qtot/(g.area*hlrHi)) : 1;
+    var nEbct= (g.bvGal>0)? Math.ceil(ebMin*Qtot/g.bvGal) : 1;
+    var Nduty=Math.max(1,nHlr,nEbct);
+    govWord=(nEbct>=nHlr)?"EBCT governs":"HLR governs";
+    setCells(Nduty+S.red); compute();
+  });
+
+  function badge(el, ok){ el.textContent=ok?"OK":"NG"; el.className="badge "+(ok?"ok":"ng"); }
+
+  function drawPlan(C,W,L,t,RW){
+    var svg=$("plan");
+    var planL=C*W+(C+1)*t, planW=RW*L+(RW+1)*t;
+    var pad=2, vw=100, vh=Math.max(20,(planW/planL)*(vw-2*pad))+2*pad;
+    svg.setAttribute("viewBox","0 0 "+vw+" "+fmtN(vh));
+    var sc=(vw-2*pad)/planL;
+    var parts=[];
+    // outer footprint
+    parts.push('<rect x="'+pad+'" y="'+pad+'" width="'+fmtN(planL*sc)+'" height="'+fmtN(planW*sc)+'" fill="#e9e4d8" stroke="#10151c" stroke-width="0.6"/>');
+    // cells: RW rows x C cols
+    for(var r=0;r<RW;r++){
+      for(var c=0;c<C;c++){
+        var x=pad+(t+c*(W+t))*sc;
+        var y=pad+(t+r*(L+t))*sc;
+        parts.push('<rect x="'+fmtN(x)+'" y="'+fmtN(y)+'" width="'+fmtN(W*sc)+'" height="'+fmtN(L*sc)+'" fill="#fbfaf7" stroke="#0b5e6b" stroke-width="0.45"/>');
+      }
+    }
+    svg.innerHTML=parts.join("");
+    return {planL:planL,planW:planW};
+    function fmtN(x){return Math.round(x*100)/100;}
+  }
+  function fmtN(x){return Math.round(x*100)/100;}
+
+  function compute(){
+    var g=geom(), W=g.W, L=g.L, area=g.area, bvCf=g.bvCf, bvGal=g.bvGal;
+    var RW=S.rows;
+    var T=Math.max(RW,RW*Math.round(S.cells/RW)), R=S.red, N=Math.max(1,T-R);
+    var C=T/RW; // columns in RW-row grid
+    var t=S.wt, H=S.bh;
+    var Qtot=S.flow*1000000/1440;
+
+    function sc(n){ var q=n>0?Qtot/n:0; return {q:q,hlr:area>0?q/area:0,ebct:q>0?bvGal/q:0}; }
+    var D=sc(N), A=sc(T);
+    var hlrLo=num($("c_hlr_lo").value), hlrHi=num($("c_hlr_hi").value), ebMin=num($("c_ebct").value);
+
+    // plan + concrete
+    var p=drawPlan(C,W,L,t,RW);
+    var planL=p.planL, planW=p.planW, planArea=planL*planW;
+    var volSlab=planArea*S.bs;
+    var volWallsLong=(RW+1)*planL*t*H;
+    var volWallsTrans=(C+1)*(RW*L)*t*H;
+    var volWalls=volWallsLong+volWallsTrans;
+    var volEslab=T*area*S.es;
+    var volSub=volSlab+volWalls+volEslab;
+    var volMisc=volSub*S.mf/100;
+    var volConc=volSub+volMisc;
+    var costConc=volConc*S.ccost;
+
+    // SS underdrain
+    var udCell=area*S.udc;
+    var udTot=udCell*T;
+    var costUd=udTot*S.udcost;
+
+    // backwash
+    var bwGpm=S.bw*area;
+    var bwMgd=bwGpm*1440/1000000;
+
+    // media
+    var densLbcf=S.dens*LBCF_PER_GCC;
+    var massCell=bvCf*densLbcf;
+    var massTotal=massCell*T;
+    var costMedia=massTotal*S.mcost;
+
+    // expansion / freeboard (within box, above elevated slab)
+    var exp=num($("c_exp").value)/100;
+    var xDepth=S.md*(1+exp);
+    var freeboard=H-S.es-xDepth;
+
+    // captions
+    $("prov_duty").textContent=N;
+    $("prov_tot").textContent=N+" + "+R+" = "+T;
+    $("plancap").textContent=RW+" × "+C+" grid · plan "+fmt(planL,1)+" ft × "+fmt(planW,1)+" ft · cells "+fmt(W,0)+" × "+fmt(L,1)+" ft";
+
+    // per-cell
+    $("o_w").textContent=fmt(W,1);
+    $("o_l").textContent=fmt(L,1);
+    $("o_area").textContent=fmt(area,0);
+    $("o_atot").textContent=fmt(area*T,0);
+    $("o_mv").textContent=fmt(bvCf,0);
+    $("o_bvgal").textContent=fmt(bvGal,0);
+    $("o_bwgpm").textContent=fmt(bwGpm,0);
+    $("o_bwmgd").textContent=fmt(bwMgd,2);
+    $("o_xdepth").textContent=fmt(xDepth,2);
+    var fbEl=$("o_fb"); fbEl.textContent=fmt(freeboard,2);
+    fbEl.style.color=freeboard<0?"var(--ng)":"";
+
+    // hydraulics
+    $("h_design").textContent=N+" duty cells in service";
+    $("h_allin").textContent=T+" cells running";
+    $("d_qtr").textContent=fmt(D.q,0);
+    $("d_hlr").textContent=fmt(D.hlr,2);
+    $("d_ebv").innerHTML=fmt(D.ebct,1)+'<small>min</small>';
+    badge($("d_hlr_b"),D.hlr>=hlrLo&&D.hlr<=hlrHi);
+    badge($("d_ebv_b"),D.ebct>=ebMin);
+    $("a_qtr").textContent=fmt(A.q,0);
+    $("a_hlr").textContent=fmt(A.hlr,2);
+    $("a_ebv").innerHTML=fmt(A.ebct,1)+'<small>min</small>';
+    badge($("a_hlr_b"),A.hlr>=hlrLo&&A.hlr<=hlrHi);
+    badge($("a_ebv_b"),A.ebct>=ebMin);
+
+    // quantity takeoff
+    $("q_ctot").textContent=fmt(T,0);
+    $("q_cds").textContent=N+" duty / "+R+" standby";
+    $("q_grid").textContent=RW+" rows × "+C+" columns";
+    $("q_plan").textContent=fmt(planL,1)+" ft × "+fmt(planW,1)+" ft";
+    $("q_parea").textContent=fmt(planArea,0)+" sf";
+    $("q_slab").textContent=fmt(volSlab,0)+" cf";
+    $("q_walls").textContent=fmt(volWalls,0)+" cf";
+    $("q_eslab").textContent=fmt(volEslab,0)+" cf";
+    $("q_csub").textContent=fmt(volSub,0)+" cf";
+    $("q_mfpct").textContent=fmt(S.mf,0);
+    $("q_misc").textContent=fmt(volMisc,0)+" cf";
+    $("q_ctotcf").textContent=fmt(volConc,0)+" cf";
+    $("q_ctotcy").textContent=fmt(volConc/27,0)+" cy";
+    $("q_ccost").textContent=fmtUSD(costConc);
+    $("q_udcell").textContent=fmt(udCell,0)+" lf";
+    $("q_udtot").textContent=fmt(udTot,0)+" lf";
+    $("q_udcost").textContent=fmtUSD(costUd);
+    $("q_mc").textContent=fmt(massCell,0)+" lb";
+    $("q_mtot").textContent=fmt(massTotal,0)+" lb";
+    $("q_mton").textContent=fmt(massTotal/2000,1)+" tons";
+    $("q_mcost").textContent=fmtUSD(costMedia);
+    $("q_tcost").textContent=fmtUSD(costConc+costUd+costMedia);
+
+    $("autocap").textContent=govWord?("sized to criteria — "+govWord):"sizes duty cells to HLR & EBCT, adds standby, rounds to even";
+  }
+
+  $("resetbtn").addEventListener("click",function(){ location.reload(); });
+  $("m_date").value=new Date().toLocaleDateString("en-US");
+  compute();
+})();
+</script>
+</body>
+</html>
