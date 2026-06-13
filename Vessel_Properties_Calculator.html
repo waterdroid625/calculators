@@ -9,13 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#10151c; --paper:#f4f1ea; --panel:#ffffff;
-    --line:#d6d0c4; --line-strong:#b7b0a1; --muted:#6b6457;
-    --accent:#0b5e6b; --accent-2:#c75300;
-    --gac:#3a3027; --gac2:#5a4b3a; --water:#dff1f4;
-    --ok:#1f7a44; --ok-bg:#e2f1e7; --ng:#b3261e; --ng-bg:#fae5e3;
-    --grid:rgba(11,94,107,.06);
-    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 24px -16px rgba(16,21,28,.35);
+    --ink:#0f2233; --paper:#e9f1f6; --panel:#ffffff;
+    --line:#c9d8e2; --line-strong:#a4bccb; --muted:#566b79;
+    --accent:#0e6f93; --accent-d:#0a4d68; --accent-2:#e08a2b;
+    --water:#d4ecf5; --ok:#1f7a44; --ok-bg:#e2f1e7; --ng:#b3261e; --ng-bg:#fae5e3;
+    --grid:rgba(14,111,147,.07);
+    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 24px -16px rgba(15,34,51,.4);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -26,30 +25,27 @@
   .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;}
   .wrap{max-width:1080px;margin:0 auto;padding:26px 20px 60px;}
 
-  .resetbtn{font-family:"IBM Plex Sans",sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.5px;
-    text-transform:uppercase;cursor:pointer;background:transparent;color:var(--accent-2);
-    border:1.5px solid var(--accent-2);padding:6px 12px;margin-top:10px;align-self:flex-start;transition:.12s;}
-  .resetbtn:hover{background:var(--accent-2);color:#fff;}
+  .hbtns{display:flex;gap:8px;margin-top:10px;}
+  .hbtn{font-family:"IBM Plex Sans",sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+    cursor:pointer;text-decoration:none;padding:6px 12px;border:1.5px solid currentColor;transition:.12s;}
+  .hbtn.back{color:var(--accent);} .hbtn.back:hover{background:var(--accent);color:#fff;}
+  .hbtn.reset{color:var(--accent-2);} .hbtn.reset:hover{background:var(--accent-2);color:#fff;}
 
   header{border:1.5px solid var(--ink);background:var(--panel);box-shadow:var(--shadow);}
   .titlebar{display:flex;flex-wrap:wrap;align-items:stretch;}
-  .titlebar .main{flex:1 1 380px;padding:16px 20px;border-right:1px solid var(--line);
-    display:flex;flex-direction:column;justify-content:center;}
+  .titlebar .main{flex:1 1 380px;padding:16px 20px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;}
   .titlebar .main h1{margin:0;font-size:20px;letter-spacing:.3px;font-weight:700;}
   .titlebar .main p{margin:3px 0 0;color:var(--muted);font-size:12.5px;}
   .titlebar .meta{flex:1 1 300px;display:grid;grid-template-columns:repeat(2,1fr);}
-  .titlebar .meta label{display:flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;
-    letter-spacing:.6px;color:var(--muted);border-left:1px solid var(--line);
-    border-bottom:1px solid var(--line);padding:8px 12px;}
-  .titlebar .meta input{border:none;background:transparent;font-family:"IBM Plex Mono",monospace;
-    font-size:13px;color:var(--ink);width:100%;min-width:0;outline:none;}
+  .titlebar .meta label{display:flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+    border-left:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 12px;}
+  .titlebar .meta input{border:none;background:transparent;font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink);width:100%;min-width:0;outline:none;}
 
   .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:18px;margin-top:18px;}
   @media(max-width:860px){.grid{grid-template-columns:1fr;}}
 
   .card{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);}
-  .card > .cap{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#fff;
-    background:var(--ink);padding:7px 14px;display:flex;align-items:center;gap:9px;}
+  .card > .cap{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:var(--accent-d);padding:7px 14px;display:flex;align-items:center;gap:9px;}
   .card > .cap::before{content:"";width:7px;height:7px;background:var(--accent-2);display:inline-block;}
   .card .body{padding:14px 16px 18px;}
 
@@ -58,49 +54,57 @@
   .row .lab span:first-child{font-size:13px;font-weight:500;}
   .row .lab .unit{font-size:11px;color:var(--muted);letter-spacing:.4px;text-align:right;}
   .val,select.val{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:600;color:var(--accent);
-    border:1px solid var(--line-strong);background:#fbfaf7;padding:6px 8px;width:100%;outline:none;}
+    border:1px solid var(--line-strong);background:#f4f9fb;padding:6px 8px;width:100%;outline:none;}
   input.val{text-align:right;}
-  .val:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(11,94,107,.15);}
+  .val:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(14,111,147,.18);}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
-  .flowline{display:grid;grid-template-columns:1fr 90px;gap:8px;}
+  .flowline{display:grid;grid-template-columns:1fr 84px;gap:8px;}
+  .sliderline{display:flex;align-items:center;gap:10px;}
+  .sliderline .val{width:64px;flex:0 0 auto;}
+  input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:3px;background:var(--line-strong);border-radius:2px;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
 
   .seg{display:inline-flex;border:1px solid var(--line-strong);overflow:hidden;width:100%;}
-  .seg button{flex:1;font-size:12.5px;font-weight:500;border:none;background:#fbfaf7;color:var(--muted);
-    padding:7px 11px;cursor:pointer;border-right:1px solid var(--line-strong);}
+  .seg button{flex:1;font-size:12px;font-weight:500;border:none;background:#f4f9fb;color:var(--muted);padding:7px 9px;cursor:pointer;border-right:1px solid var(--line-strong);}
   .seg button:last-child{border-right:none;}
   .seg button.on{background:var(--accent);color:#fff;}
+  .seg.sm button{font-size:11.5px;padding:6px 6px;}
   .hide{display:none!important;}
 
-  .subhdr{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);
-    margin:4px 0 12px;padding-bottom:6px;border-bottom:1px dashed var(--line);}
+  .sitebar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;}
+  .minibtn{font-family:"IBM Plex Sans",sans-serif;font-size:11px;font-weight:600;letter-spacing:.3px;cursor:pointer;background:transparent;color:var(--accent);border:1.5px solid var(--accent);padding:5px 10px;}
+  .minibtn:hover{background:var(--accent);color:#fff;}
+  .minibtn.danger{color:var(--ng);border-color:var(--ng);} .minibtn.danger:hover{background:var(--ng);color:#fff;}
+  .savenote{font-size:10.5px;color:var(--muted);margin-top:6px;line-height:1.4;}
 
-  .fig{display:flex;justify-content:center;padding:4px 0 8px;}
-  .fig svg{width:100%;max-width:300px;height:auto;}
+  .subhdr{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:4px 0 12px;padding-bottom:6px;border-bottom:1px dashed var(--line);}
 
-  .derived .d{display:flex;justify-content:space-between;align-items:baseline;
-    padding:7px 0;border-bottom:1px dotted var(--line);}
-  .derived .d .k{font-size:12.5px;color:var(--muted);}
-  .derived .d .v{font-family:"IBM Plex Mono",monospace;font-size:13.5px;font-weight:600;}
-  .derived .d .v.hl{color:var(--accent);font-size:15px;}
+  .figrow{display:flex;justify-content:center;align-items:center;gap:6px;padding:4px 0 4px;}
+  .figrow svg{width:100%;height:auto;}
+  .vcell{flex:1.5;max-width:240px;} .gcell{flex:1;max-width:150px;}
+  .figcap{text-align:center;font-size:11px;color:var(--muted);font-family:"IBM Plex Mono",monospace;margin:0 0 12px;}
 
-  .keyrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
-  @media(max-width:520px){.keyrow{grid-template-columns:1fr;}}
-  .key{border:1px solid var(--line-strong);background:#fbfaf7;padding:10px 12px;}
-  .key .k{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);}
-  .key .v{font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:600;color:var(--accent);margin-top:3px;}
-  .key .v small{font-size:11px;color:var(--muted);font-weight:500;margin-left:3px;}
+  .insbar{display:flex;align-items:center;gap:10px;margin:4px 0 14px;}
+  .insbar .lbl{font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;}
 
-  .countbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
-  .cpill{font-family:"IBM Plex Mono",monospace;font-size:12px;background:#fbfaf7;border:1px solid var(--line-strong);padding:5px 10px;}
-  .cpill b{color:var(--accent);}
   table.qt{width:100%;border-collapse:collapse;font-size:13px;}
-  table.qt td{padding:8px 10px;border-bottom:1px solid var(--line);}
+  table.qt td{padding:7px 10px;border-bottom:1px solid var(--line);}
   table.qt tr td:first-child{color:var(--muted);}
-  table.qt tr td:first-child em{display:block;font-style:normal;font-size:10.5px;color:var(--line-strong);}
   table.qt tr td:nth-child(2),table.qt tr td:nth-child(3){font-family:"IBM Plex Mono",monospace;font-weight:600;text-align:right;}
   table.qt tr td:nth-child(3){color:var(--accent);}
-  table.qt tr.head td{background:#fbfaf7;color:var(--ink)!important;font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:.8px;border-bottom:1px solid var(--line-strong);}
-  table.qt tr.head td:nth-child(2),table.qt tr.head td:nth-child(3){text-align:right;color:var(--ink)!important;}
+  table.qt tr td:nth-child(4){text-align:center;width:46px;}
+  table.qt tr.head td{background:#f4f9fb;color:var(--ink)!important;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.7px;border-bottom:1px solid var(--line-strong);}
+  table.qt tr.head td:nth-child(2),table.qt tr.head td:nth-child(3),table.qt tr.head td:nth-child(4){text-align:right;color:var(--ink)!important;}
+  table.qt tr.head td:nth-child(4){text-align:center;}
+  table.qt tr.grp td{background:#eef5f9;color:var(--accent-d)!important;font-weight:600;text-transform:uppercase;font-size:9.5px;letter-spacing:.8px;}
+  .badge{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;padding:2px 6px;border-radius:2px;letter-spacing:.5px;}
+  .badge.ok{background:var(--ok-bg);color:var(--ok);} .badge.ng{background:var(--ng-bg);color:var(--ng);}
+
+  .crit{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);margin-top:16px;padding-top:13px;}
+  .crit .citem{display:flex;align-items:center;gap:7px;}
+  .crit input{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border:1px solid var(--line-strong);background:#f4f9fb;padding:4px 6px;width:50px;text-align:right;outline:none;}
+
   .note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.55;}
   .foot{margin-top:18px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.3px;}
 </style>
@@ -112,8 +116,11 @@
     <div class="titlebar">
       <div class="main">
         <h1>GAC Vessel Properties</h1>
-        <p>Per-vessel HLR, EBCT, bed volume &amp; freeboard from diameter and bed depth</p>
-        <button class="resetbtn" id="resetbtn" title="Restore defaults">&#8635; Reset</button>
+        <p>Per-vessel &amp; total HLR, EBCT, bed volume &amp; freeboard from diameter and bed depth</p>
+        <div class="hbtns">
+          <a class="hbtn back" href="index.html">&larr; Calculators</a>
+          <button class="hbtn reset" id="resetbtn" title="Restore defaults">&#8635; Reset</button>
+        </div>
       </div>
       <div class="meta">
         <label>Project <input id="m_proj" placeholder="—"></label>
@@ -133,85 +140,63 @@
 
         <div class="row">
           <div class="lab"><span>Preprogrammed site</span></div>
-          <select class="val" id="site">
-            <option value="custom">Custom</option>
-            <option value="NES">NES</option>
-            <option value="MDW">MDW</option>
-            <option value="PIK">PIK</option>
-            <option value="STA">STA</option>
-            <option value="ALL">ALL</option>
-            <option value="PED">PED</option>
-            <option value="HNT">HNT</option>
-            <option value="DER">DER</option>
-            <option value="IVY">IVY</option>
-            <option value="MEY">MEY</option>
-            <option value="URM">URM</option>
-          </select>
+          <select class="val" id="site"></select>
+          <div class="sitebar">
+            <button class="minibtn" id="saveBtn">Save current as site…</button>
+            <button class="minibtn" id="exportBtn">Export</button>
+            <button class="minibtn" id="importBtn">Import</button>
+            <button class="minibtn danger" id="deleteBtn">Delete saved</button>
+            <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+          </div>
+          <div class="savenote">Saved sites live in this browser only and <b>may be lost</b>. Use Export to back up a JSON copy.</div>
         </div>
 
         <div class="row" style="margin-top:13px;">
+          <div class="lab"><span>Total flow</span></div>
+          <div class="flowline"><input class="val mono" id="flow" value="15"><select class="val" id="unit"><option value="mgd">mgd</option><option value="gpm">gpm</option></select></div>
+        </div>
+
+        <div class="subhdr">Vessel</div>
+        <div class="row">
+          <div class="lab"><span>Duty trains (N)</span><span class="unit">flow paths</span></div>
+          <div class="sliderline"><input type="range" id="trains_s" min="1" max="60" step="1" value="12"><input class="val mono" id="trains" value="12"></div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>Redundancy</span><span class="unit">standby trains</span></div>
+          <div class="seg sm" id="redun">
+            <button data-v="0">N+0</button><button data-v="1" class="on">N+1</button>
+            <button data-v="2">N+2</button><button data-v="3">N+3</button><button data-v="4">N+4</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>Vessel diameter</span><span class="unit">ft</span></div>
+          <select class="val" id="dia">
+            <option value="14">14 ft</option><option value="12" selected>12 ft</option><option value="10">10 ft</option>
+            <option value="8">8 ft</option><option value="6">6 ft</option><option value="4">4 ft</option>
+          </select>
+        </div>
+
+        <div class="subhdr">Arrangement &amp; media</div>
+        <div class="row">
           <div class="lab"><span>Vessel arrangement</span></div>
-          <div class="seg" id="config">
-            <button data-v="leadlag" class="on">Lead / lag (2 in series)</button>
-            <button data-v="single">Single stage</button>
-          </div>
+          <div class="seg" id="config"><button data-v="leadlag" class="on">Lead / lag (2 in series)</button><button data-v="single">Single stage</button></div>
         </div>
-
-        <div class="subhdr">Vessel &amp; media</div>
-        <div class="two">
-          <div class="row">
-            <div class="lab"><span>Vessel diameter</span><span class="unit">ft</span></div>
-            <input class="val mono" id="dia" value="12">
-          </div>
-          <div class="row">
-            <div class="lab"><span>Straight wall depth</span><span class="unit">ft</span></div>
-            <input class="val mono" id="swd" value="16">
-          </div>
-        </div>
-
         <div class="row">
           <div class="lab"><span>Bed depth basis</span></div>
-          <div class="seg" id="basis">
-            <button data-v="mass" class="on">By media mass</button>
-            <button data-v="depth">By bed depth</button>
-          </div>
+          <div class="seg" id="basis"><button data-v="mass" class="on">By media mass</button><button data-v="depth">By bed depth</button></div>
         </div>
-
         <div id="massbox">
           <div class="two">
-            <div class="row">
-              <div class="lab"><span>Media per vessel</span><span class="unit">lbs</span></div>
-              <input class="val mono" id="mass" value="40000">
-            </div>
-            <div class="row">
-              <div class="lab"><span>Operational density</span><span class="unit">g/cc</span></div>
-              <input class="val mono" id="dens" value="0.485">
-            </div>
+            <div class="row"><div class="lab"><span>Media per vessel</span><span class="unit">lbs</span></div><input class="val mono" id="mass" value="40,000"></div>
+            <div class="row"><div class="lab"><span>Operational density</span><span class="unit">g/cc</span></div><input class="val mono" id="dens" value="0.485"></div>
           </div>
         </div>
         <div id="depthbox" class="hide">
-          <div class="row">
-            <div class="lab"><span>Bed depth</span><span class="unit">ft</span></div>
-            <input class="val mono" id="depth" value="5">
-          </div>
+          <div class="row"><div class="lab"><span>Bed depth</span><span class="unit">ft</span></div><input class="val mono" id="depth" value="5"></div>
         </div>
-
-        <div class="row">
-          <div class="lab"><span>Bed expansion</span><span class="unit">% for freeboard</span></div>
-          <input class="val mono" id="exp" value="30">
-        </div>
-
-        <div class="subhdr">Flow</div>
-        <div class="row">
-          <div class="lab"><span>Total flow</span></div>
-          <div class="flowline">
-            <input class="val mono" id="flow" value="15">
-            <select class="val" id="unit"><option value="mgd">mgd</option><option value="gpm">gpm</option></select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="lab"><span>Duty trains</span><span class="unit">one flow path each</span></div>
-          <input class="val mono" id="trains" value="12">
+        <div class="row" style="margin-top:13px;">
+          <div class="lab"><span>Straight side height</span><span class="unit">ft</span></div>
+          <input class="val mono" id="swd" value="16">
         </div>
 
       </div>
@@ -222,39 +207,49 @@
       <div class="cap">Vessel properties</div>
       <div class="body">
 
-        <div class="fig"><svg id="vfig" viewBox="0 0 300 320"></svg></div>
-
-        <div class="keyrow">
-          <div class="key"><div class="k">HLR</div><div class="v"><span id="o_hlr">—</span><small>gpm/sf</small></div></div>
-          <div class="key"><div class="k">EBCT / train</div><div class="v"><span id="o_ebct">—</span><small>min</small></div></div>
-          <div class="key"><div class="k">Freeboard</div><div class="v"><span id="o_fb">—</span><small>ft</small></div></div>
+        <div class="insbar">
+          <span class="lbl">In service:</span>
+          <div class="seg" id="inserv"><button data-v="duty" class="on">Duty units only</button><button data-v="all">All units</button></div>
         </div>
 
-        <div class="countbar">
-          <span class="cpill">Duty trains <b id="o_tr">—</b></span>
-          <span class="cpill">Vessels per train <b id="o_vpt">—</b></span>
-          <span class="cpill">Total vessels <b id="o_vtot">—</b></span>
+        <div class="figrow">
+          <div class="figcell vcell"><svg id="vfig" viewBox="0 0 240 320"></svg></div>
+          <div class="figcell gcell"><svg id="gfig" viewBox="0 0 150 320"></svg></div>
         </div>
+        <div class="figcap" id="figcap">—</div>
 
         <table class="qt">
-          <tr class="head"><td>Property</td><td>Per vessel</td><td>Total</td></tr>
-          <tr><td>Bed / filter area<em>area is per train, not per vessel</em></td><td id="o_area">—</td><td id="o_areaT">—</td></tr>
-          <tr><td>Media volume</td><td id="o_mv">—</td><td id="o_mvT">—</td></tr>
-          <tr><td>Media mass</td><td id="o_mass">—</td><td id="o_massT">—</td></tr>
-          <tr><td>Bed volume</td><td id="o_bvgal">—</td><td id="o_bvT">—</td></tr>
-          <tr><td>EBCT<em>total = per train (series adds)</em></td><td id="o_ebctpv">—</td><td id="o_ebcttot">—</td></tr>
+          <tr class="head"><td>Property</td><td>Per vessel</td><td>Total</td><td></td></tr>
+          <tr class="grp"><td colspan="4">Configuration</td></tr>
+          <tr><td>Trains (duty / standby / in svc)</td><td>—</td><td id="o_trains">—</td><td></td></tr>
+          <tr><td>Vessels per train</td><td id="o_vpt">—</td><td>—</td><td></td></tr>
+          <tr><td>Total vessels (installed)</td><td>—</td><td id="o_vtot">—</td><td></td></tr>
+          <tr class="grp"><td colspan="4">Quantities</td></tr>
+          <tr><td>Bed / filter area</td><td id="o_area">—</td><td id="o_areaT">—</td><td></td></tr>
+          <tr><td>Media volume</td><td id="o_mv">—</td><td id="o_mvT">—</td><td></td></tr>
+          <tr><td>Media mass</td><td id="o_mass">—</td><td id="o_massT">—</td><td></td></tr>
+          <tr><td>Bed volume</td><td id="o_bvgal">—</td><td id="o_bvT">—</td><td></td></tr>
+          <tr class="grp"><td colspan="4">Hydraulics &amp; contact</td></tr>
+          <tr><td>Flow per vessel</td><td id="o_qv">—</td><td id="o_qvT">—</td><td></td></tr>
+          <tr><td>HLR</td><td id="o_hlr">—</td><td>—</td><td><span id="b_hlr" class="badge"></span></td></tr>
+          <tr><td>EBCT per vessel</td><td id="o_ebctv">—</td><td>—</td><td><span id="b_ebct" class="badge"></span></td></tr>
+          <tr><td>EBCT per train</td><td id="o_ebctt">—</td><td>—</td><td></td></tr>
+          <tr class="grp"><td colspan="4">Bed &amp; freeboard</td></tr>
+          <tr><td>Settled bed depth (per vessel)</td><td id="o_depth">—</td><td>—</td><td></td></tr>
+          <tr><td>Effective bed depth (per train)</td><td id="o_depthT">—</td><td>—</td><td></td></tr>
+          <tr><td>Expanded bed depth (<span id="lbl_exp">25</span>% expansion)</td><td id="o_xdepth">—</td><td>—</td><td></td></tr>
+          <tr><td>Freeboard</td><td id="o_fb">—</td><td>—</td><td><span id="b_fb" class="badge"></span></td></tr>
         </table>
 
-        <div class="derived" style="margin-top:14px;">
-          <div class="d"><span class="k">Settled bed depth (per vessel)</span><span class="v"><span id="o_depth">—</span> ft</span></div>
-          <div class="d"><span class="k">Effective bed depth (per train)</span><span class="v"><span id="o_depthT">—</span> ft</span></div>
-          <div class="d"><span class="k">Expanded bed depth</span><span class="v"><span id="o_xdepth">—</span> ft</span></div>
-          <div class="d"><span class="k">Flow per vessel</span><span class="v"><span id="o_qv">—</span> gpm</span></div>
-          <div class="d"><span class="k">Flow per vessel</span><span class="v"><span id="o_qvm">—</span> mgd</span></div>
+        <div class="crit">
+          <span style="color:var(--ink);font-weight:600;">Criteria:</span>
+          <div class="citem">HLR <input id="c_hlr_lo" value="2"> – <input id="c_hlr_hi" value="10"> gpm/sf</div>
+          <div class="citem">EBCT/vessel ≥ <input id="c_ebct" value="10"> min</div>
+          <div class="citem">Bed expansion <input id="c_exp" value="25"> %</div>
         </div>
 
         <div class="note">
-          Flow per vessel = total flow ÷ duty trains (one flow path per train). HLR = flow per vessel ÷ bed area; EBCT = bed volume (gal) ÷ flow per vessel, shown as <b>EBCT / train</b> (a lead/lag pair in series gives twice the per-vessel value). Lead/lag adds a duplicate lag vessel in series per train, so media volume, media mass and bed volume double, and effective bed depth doubles, but filter area does not (the same cross-section sets HLR). Freeboard = straight wall depth − expanded bed depth; it turns red if the expanded bed exceeds the wall. Media volume = bed depth × area; density lb/cf = g/cc × 62.428.
+          Flow per vessel = total flow ÷ trains in service (duty only, or all units incl. standby). HLR = flow per vessel ÷ bed area. "Total" columns are system/installed totals (media and vessels across all installed trains); filter area is per train since the lag vessel shares the cross-section. EBCT has no system total, so it's shown per vessel and per train. Freeboard = straight side height − expanded bed depth.
         </div>
 
       </div>
@@ -268,160 +263,195 @@
 <script>
 (function(){
   function $(id){return document.getElementById(id);}
-  function num(v){var x=parseFloat(v);return isFinite(x)?x:0;}
+  function num(v){var x=parseFloat(String(v).replace(/,/g,''));return isFinite(x)?x:0;}
   function fmt(x,d){ if(!isFinite(x))return"—"; return x.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}); }
-  var GAL=7.480519, LBCF=62.428;
+  var GAL=7.480519, LBCF=62.428, KEY="vpc_sites_v1";
+  var S={ basis:"mass", config:"leadlag", redun:1, inserv:"duty" };
 
-  var S={ basis:"mass", config:"leadlag" };
-
-  // preprogrammed sites (abbreviations only)
-  var DEF={dia:12,swd:16,basis:"mass",mass:40000,dens:0.485,depth:5,exp:30,flow:null,unit:"mgd",trains:1,config:"leadlag"};
+  var BUILTIN_ORDER=["custom","PIK","NES","ALN"];
+  var DIAM={14:{mass:60000,ssh:18},12:{mass:40000,ssh:16},10:{mass:20000,ssh:12},8:{mass:10000,ssh:10},6:{mass:3500,ssh:8},4:{mass:1200,ssh:6}};
+  var DEF={dia:12,swd:16,basis:"mass",mass:40000,dens:0.485,depth:5,exp:25,flow:null,unit:"mgd",trains:1,config:"leadlag",redun:1,inserv:"duty"};
   var SITES={
-    NES:{dia:12,basis:"mass",mass:40000,dens:0.485,trains:12,flow:15,unit:"mgd",config:"leadlag"},
-    MDW:{dia:7,basis:"depth",depth:5,dens:0.485,trains:1,flow:125,unit:"gpm",config:"leadlag"},
     PIK:{dia:12,basis:"mass",mass:40000,dens:0.485,trains:44,flow:60,unit:"mgd",config:"single"},
-    STA:{dia:12,basis:"mass",mass:40000,dens:0.485,trains:22,flow:null,unit:"mgd",config:"leadlag"},
-    ALL:{dia:12,basis:"mass",mass:40000,dens:0.485,trains:3,flow:3,unit:"mgd",config:"leadlag"},
-    PED:{},HNT:{},DER:{},IVY:{},MEY:{},URM:{}
+    NES:{dia:12,basis:"mass",mass:40000,dens:0.485,trains:12,flow:15,unit:"mgd",config:"leadlag"},
+    ALN:{dia:12,basis:"mass",mass:40000,dens:0.485,trains:3,flow:3,unit:"mgd",config:"leadlag"}
   };
+  var saved={};
+  function loadSaved(){ try{ var s=localStorage.getItem(KEY); if(s) saved=JSON.parse(s)||{}; }catch(e){ saved={}; } }
+  function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(saved)); }catch(e){ alert("Browser storage isn't available — use Export."); } }
 
-  function setConfig(c){
-    S.config=c;
-    $("config").querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-v")===c);});
+  function rebuildSelect(){
+    var sel=$("site"), cur=sel.value; sel.innerHTML="";
+    var g1=document.createElement("optgroup"); g1.label="Sites";
+    BUILTIN_ORDER.forEach(function(c){ var o=document.createElement("option"); o.value=c; o.textContent=(c==="custom"?"Custom":c); g1.appendChild(o); });
+    sel.appendChild(g1);
+    var keys=Object.keys(saved);
+    if(keys.length){ var g2=document.createElement("optgroup"); g2.label="Saved";
+      keys.forEach(function(c){ var o=document.createElement("option"); o.value="SAVED:"+c; o.textContent=c; g2.appendChild(o); }); sel.appendChild(g2); }
+    if(cur) sel.value=cur;
   }
-  function setBasis(b){
-    S.basis=b;
-    $("basis").querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-v")===b);});
-    $("massbox").classList.toggle("hide",b!=="mass");
-    $("depthbox").classList.toggle("hide",b!=="depth");
-  }
+
+  function setSeg(wrap,key,v){ S[key]=v; $(wrap).querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-v")==String(v));}); }
+  function setBasis(b){ S.basis=b; $("basis").querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-v")===b);});
+    $("massbox").classList.toggle("hide",b!=="mass"); $("depthbox").classList.toggle("hide",b!=="depth"); }
+  function syncSliders(){ var t=$("trains_s"); t.value=Math.min(Math.max(num($("trains").value),+t.min),+t.max); }
 
   function applySite(code){
-    if(code==="custom"){ return; }
-    var s=Object.assign({},DEF,SITES[code]||{});
-    $("dia").value=s.dia; $("swd").value=s.swd;
-    setBasis(s.basis); setConfig(s.config);
-    $("mass").value=s.mass; $("dens").value=s.dens; $("depth").value=s.depth;
-    $("exp").value=s.exp;
-    $("flow").value=(s.flow==null?"":s.flow); $("unit").value=s.unit;
-    $("trains").value=s.trains;
-    compute();
+    if(code==="custom") return;
+    var s=(code.indexOf("SAVED:")===0)?Object.assign({},DEF,saved[code.slice(6)]||{}):Object.assign({},DEF,SITES[code]||{});
+    $("dia").value=String(s.dia); $("swd").value=s.swd; setBasis(s.basis); setSeg("config","config",s.config);
+    setSeg("redun","redun",s.redun); setSeg("inserv","inserv",s.inserv);
+    $("mass").value=fmt(s.mass,0); $("dens").value=s.dens; $("depth").value=s.depth;
+    $("flow").value=(s.flow==null?"":s.flow); $("unit").value=s.unit; $("trains").value=s.trains;
+    if(s.exp!=null) $("c_exp").value=s.exp;
+    syncSliders(); compute();
+  }
+  function readInputs(){
+    return {dia:num($("dia").value),swd:num($("swd").value),basis:S.basis,mass:num($("mass").value),
+      dens:num($("dens").value),depth:num($("depth").value),exp:num($("c_exp").value),
+      flow:($("flow").value.trim()===""?null:num($("flow").value)),unit:$("unit").value,
+      trains:num($("trains").value),config:S.config,redun:S.redun,inserv:S.inserv};
   }
 
-  function drawVessel(dia,swd,depth,xdepth){
-    var svg=$("vfig");
-    if(dia<=0||swd<=0){ svg.innerHTML=""; return; }
-    var vw=300, padL=70, padR=70, padT=30, padB=40;
-    var availH=320-padT-padB, availW=vw-padL-padR;
-    var sc=availH/swd;                       // px per ft (vertical, to scale)
-    var wpx=Math.min(dia*sc,availW);          // vessel width px (same scale, clamped)
-    if(dia*sc>availW) sc=availW/dia, wpx=availW; // refit if very wide
-    var H=swd*sc;
-    var cx=vw/2, x0=cx-wpx/2, x1=cx+wpx/2;
-    var yTop=padT, yBot=padT+H;
-    var head=Math.min(wpx*0.18,16);
-    var p=[];
-    // vessel shell (straight wall + elliptical heads)
-    p.push('<path d="M '+x0+' '+yTop+' L '+x1+' '+yTop+' '+
-           'M '+x0+' '+yBot+' L '+x1+' '+yBot+'" stroke="none"/>');
-    p.push('<rect x="'+x0+'" y="'+yTop+'" width="'+wpx+'" height="'+H+'" fill="#fff" stroke="#10151c" stroke-width="2"/>');
-    p.push('<ellipse cx="'+cx+'" cy="'+yTop+'" rx="'+(wpx/2)+'" ry="'+head+'" fill="#fff" stroke="#10151c" stroke-width="2"/>');
-    p.push('<ellipse cx="'+cx+'" cy="'+yBot+'" rx="'+(wpx/2)+'" ry="'+head+'" fill="#fff" stroke="#10151c" stroke-width="2"/>');
-    // settled bed (from bottom up)
-    var bedH=Math.min(depth,swd)*sc, yBed=yBot-bedH;
-    p.push('<rect x="'+x0+'" y="'+yBed+'" width="'+wpx+'" height="'+bedH+'" fill="#5a4b3a"/>');
-    p.push('<ellipse cx="'+cx+'" cy="'+yBot+'" rx="'+(wpx/2)+'" ry="'+head+'" fill="#5a4b3a" opacity="0.85"/>');
-    // expanded level (dashed)
-    var xH=Math.min(xdepth,swd)*sc, yX=yBot-xH;
-    p.push('<line x1="'+x0+'" y1="'+yX+'" x2="'+x1+'" y2="'+yX+'" stroke="#c75300" stroke-width="1.6" stroke-dasharray="5 3"/>');
-    // water above expanded
-    p.push('<rect x="'+x0+'" y="'+yTop+'" width="'+wpx+'" height="'+(yX-yTop)+'" fill="#dff1f4" opacity="0.45"/>');
-    // dimension labels (right side)
-    function dim(yA,yB,label,color){
-      var xL=x1+10;
+  function areaOf(){ var d=num($("dia").value); return Math.PI/4*d*d; }
+  function curDepth(){ if(S.basis==="depth") return num($("depth").value); var a=areaOf(),l=num($("dens").value)*LBCF; return (a>0&&l>0)?num($("mass").value)/l/a:0; }
+
+  function drawVessel(dia,ssh,depth,xdepth){
+    var svg=$("vfig"); if(dia<=0||ssh<=0){svg.innerHTML="";return;}
+    var vw=240,padT=22,padB=40, availH=320-padT-padB, availW=vw-150;
+    var sc=availH/(ssh+dia/2); var wpx=dia*sc; if(wpx>availW){ sc=availW/dia; wpx=availW; }
+    var capH=wpx/4, bodyH=ssh*sc, cx=vw/2, x0=cx-wpx/2, x1=cx+wpx/2;
+    var yBodyTop=padT+capH, yBodyBot=yBodyTop+bodyH;
+    var bedH=Math.min(depth,ssh)*sc, yBed=yBodyBot-bedH;
+    var xH=Math.min(xdepth,ssh)*sc, yX=yBodyBot-xH;
+    var INK="#0f2233",ACC="#0e6f93",AC2="#e08a2b",MEDIA="#b3b9bf",EXP="#a9d8ea";
+    var id="v"+Math.floor(Math.random()*99999); var p=[];
+    p.push('<defs>');
+    p.push('<clipPath id="sil'+id+'"><rect x="'+x0+'" y="'+yBodyTop+'" width="'+wpx+'" height="'+bodyH+'"/><ellipse cx="'+cx+'" cy="'+yBodyTop+'" rx="'+(wpx/2)+'" ry="'+capH+'"/><ellipse cx="'+cx+'" cy="'+yBodyBot+'" rx="'+(wpx/2)+'" ry="'+capH+'"/></clipPath>');
+    p.push('<clipPath id="top'+id+'"><rect x="0" y="0" width="'+vw+'" height="'+yBodyTop+'"/></clipPath>');
+    p.push('<clipPath id="bot'+id+'"><rect x="0" y="'+yBodyBot+'" width="'+vw+'" height="'+(320-yBodyBot)+'"/></clipPath>');
+    p.push('</defs>');
+    p.push('<g clip-path="url(#sil'+id+')">');
+    p.push('<rect x="'+(x0-2)+'" y="'+(yBodyTop-capH-2)+'" width="'+(wpx+4)+'" height="'+(bodyH+2*capH+4)+'" fill="#fff"/>');
+    p.push('<rect x="'+x0+'" y="'+yX+'" width="'+wpx+'" height="'+(yBed-yX)+'" fill="'+EXP+'"/>');
+    p.push('<rect x="'+x0+'" y="'+yBed+'" width="'+wpx+'" height="'+((yBodyBot+capH)-yBed)+'" fill="'+MEDIA+'"/>');
+    p.push('<line x1="'+x0+'" y1="'+yX+'" x2="'+x1+'" y2="'+yX+'" stroke="'+AC2+'" stroke-width="1.8" stroke-dasharray="5 3"/>');
+    p.push('</g>');
+    p.push('<line x1="'+x0+'" y1="'+yBodyTop+'" x2="'+x0+'" y2="'+yBodyBot+'" stroke="'+INK+'" stroke-width="2"/>');
+    p.push('<line x1="'+x1+'" y1="'+yBodyTop+'" x2="'+x1+'" y2="'+yBodyBot+'" stroke="'+INK+'" stroke-width="2"/>');
+    p.push('<ellipse cx="'+cx+'" cy="'+yBodyTop+'" rx="'+(wpx/2)+'" ry="'+capH+'" fill="none" stroke="'+INK+'" stroke-width="2" clip-path="url(#top'+id+')"/>');
+    p.push('<ellipse cx="'+cx+'" cy="'+yBodyBot+'" rx="'+(wpx/2)+'" ry="'+capH+'" fill="none" stroke="'+INK+'" stroke-width="2" clip-path="url(#bot'+id+')"/>');
+    function dim(yA,yB,label,color){ var xL=x1+12;
       p.push('<line x1="'+xL+'" y1="'+yA+'" x2="'+xL+'" y2="'+yB+'" stroke="'+color+'" stroke-width="1"/>');
       p.push('<line x1="'+(xL-4)+'" y1="'+yA+'" x2="'+(xL+4)+'" y2="'+yA+'" stroke="'+color+'" stroke-width="1"/>');
       p.push('<line x1="'+(xL-4)+'" y1="'+yB+'" x2="'+(xL+4)+'" y2="'+yB+'" stroke="'+color+'" stroke-width="1"/>');
-      p.push('<text x="'+(xL+7)+'" y="'+((yA+yB)/2+3)+'" font-family="IBM Plex Mono" font-size="10" fill="'+color+'">'+label+'</text>');
-    }
-    dim(yBed,yBot,fmt(depth,1)+"' bed","#5a4b3a");
-    dim(yX,yTop,fmt(swd-xdepth,2)+"' FB","#0b5e6b");
-    // expanded callout (left)
-    p.push('<text x="'+(x0-10)+'" y="'+(yX+3)+'" text-anchor="end" font-family="IBM Plex Mono" font-size="10" fill="#c75300">expanded +'+fmt((xdepth/depth-1)*100,0)+'%</text>');
-    p.push('<line x1="'+(x0-8)+'" y1="'+yX+'" x2="'+x0+'" y2="'+yX+'" stroke="#c75300" stroke-width="1"/>');
-    // diameter label (bottom)
-    p.push('<text x="'+cx+'" y="'+(yBot+head+24)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="#10151c">Ø '+fmt(dia,1)+" ft</text>");
+      p.push('<text x="'+(xL+6)+'" y="'+((yA+yB)/2+3.5)+'" font-family="IBM Plex Mono" font-size="10" fill="'+color+'">'+label+'</text>'); }
+    dim(yBed,yBodyBot,fmt(depth,1)+"' bed","#7f868c");
+    dim(yBodyTop,yX,fmt(ssh-xdepth,2)+"' FB",ACC);
+    p.push('<text x="'+(x0-10)+'" y="'+(yX+3.5)+'" text-anchor="end" font-family="IBM Plex Mono" font-size="9.5" fill="'+AC2+'">exp +'+fmt((depth>0?(xdepth/depth-1)*100:0),0)+'%</text>');
+    p.push('<line x1="'+(x0-8)+'" y1="'+yX+'" x2="'+x0+'" y2="'+yX+'" stroke="'+AC2+'" stroke-width="1"/>');
+    p.push('<text x="'+cx+'" y="'+(yBodyBot+capH+22)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="'+INK+'">&#216; '+fmt(dia,1)+" ft</text>");
     svg.innerHTML=p.join("");
   }
 
-  function compute(){
-    var dia=num($("dia").value), swd=num($("swd").value), dens=num($("dens").value);
-    var area=Math.PI/4*dia*dia;
-    var lbcf=dens*LBCF;
-    var depth, mass, mvcf;
-    if(S.basis==="mass"){
-      mass=num($("mass").value);
-      mvcf=lbcf>0?mass/lbcf:0;
-      depth=area>0?mvcf/area:0;
-    } else {
-      depth=num($("depth").value);
-      mvcf=depth*area;
-      mass=mvcf*lbcf;
+  function drawGauges(hlr,ebctv,lo,hi,emin,hasFlow){
+    var svg=$("gfig"); var top=26, trackBot=286, trackH=trackBot-top;
+    var INK="#0f2233",GRN="#41ab73",RED="#c0392b",TRK="#e3eef4",AC2="#e08a2b",MUT="#566b79";
+    var Hmax=Math.max(hi*1.3, hlr*1.1, hi+3), Emax=Math.max(emin*2.2, ebctv*1.1, emin+12);
+    function yfor(v,max){ return trackBot-Math.max(0,Math.min(v/max,1))*trackH; }
+    function gauge(cx,val,max,lines,pass,vlabel,axis){
+      var bw=34, x=cx-bw/2, s=[];
+      s.push('<rect x="'+x+'" y="'+top+'" width="'+bw+'" height="'+trackH+'" fill="'+TRK+'" stroke="#cdd9e1" stroke-width="1"/>');
+      if(hasFlow){ var yv=yfor(val,max);
+        s.push('<rect x="'+x+'" y="'+yv+'" width="'+bw+'" height="'+(trackBot-yv)+'" fill="'+(pass?GRN:RED)+'"/>');
+        s.push('<text x="'+cx+'" y="'+(top-8)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="'+(pass?GRN:RED)+'">'+fmt(val,(max>20?0:1))+'</text>');
+      } else { s.push('<text x="'+cx+'" y="'+(top-8)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" fill="'+MUT+'">—</text>'); }
+      lines.forEach(function(cv){ if(cv<=max){ var y=yfor(cv,max);
+        s.push('<line x1="'+(x-5)+'" y1="'+y+'" x2="'+(x+bw+5)+'" y2="'+y+'" stroke="'+AC2+'" stroke-width="1.4" stroke-dasharray="4 2"/>');
+        s.push('<text x="'+(x+bw+8)+'" y="'+(y+3)+'" font-family="IBM Plex Mono" font-size="9" fill="'+AC2+'">'+fmt(cv,0)+'</text>'); } });
+      s.push('<text x="'+cx+'" y="'+(trackBot+16)+'" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" font-weight="600" fill="'+INK+'">'+axis+'</text>');
+      s.push('<text x="'+cx+'" y="'+(trackBot+28)+'" text-anchor="middle" font-family="IBM Plex Sans" font-size="8.5" fill="'+MUT+'">'+vlabel+'</text>');
+      return s.join("");
     }
-    var vpt=S.config==="leadlag"?2:1;
-    var bvgal=depth*area*GAL;
-    var expp=num($("exp").value)/100;
-    var xdepth=depth*(1+expp);
-    var fb=swd-xdepth;
-
-    var fv=num($("flow").value), unit=$("unit").value;
-    var hasFlow=$("flow").value.trim()!=="" && fv>0;
-    var gpm=unit==="mgd"?fv*1e6/1440:fv;
-    var trains=num($("trains").value);
-    var vessels=trains*vpt;
-    var qv=(hasFlow&&trains>0)?gpm/trains:0;
-    var hlr=(qv>0&&area>0)?qv/area:0;
-    var ebct=(qv>0&&bvgal>0)?bvgal/qv:0;
-
-    $("o_hlr").textContent=qv>0?fmt(hlr,2):"—";
-    $("o_ebct").textContent=qv>0?fmt(ebct*vpt,1):"—";
-    var fbEl=$("o_fb"); fbEl.textContent=fmt(fb,2); fbEl.parentElement.style.color=fb<0?"var(--ng)":"";
-    $("o_tr").textContent=fmt(trains,0);
-    $("o_vpt").textContent=vpt+(vpt===2?" (lead+lag)":" (single)");
-    $("o_vtot").textContent=fmt(vessels,0);
-    $("o_area").textContent=fmt(area,1)+" sf";
-    $("o_areaT").textContent=fmt(area*trains,0)+" sf";
-    $("o_mv").textContent=fmt(mvcf,0)+" cf";
-    $("o_mvT").textContent=fmt(mvcf*vessels,0)+" cf";
-    $("o_mass").textContent=fmt(mass,0)+" lb";
-    $("o_massT").textContent=fmt(mass*vessels,0)+" lb";
-    $("o_bvgal").textContent=fmt(bvgal,0)+" gal";
-    $("o_bvT").textContent=fmt(bvgal*vessels,0)+" gal";
-    $("o_ebctpv").textContent=qv>0?fmt(ebct,1)+" min":"—";
-    $("o_ebcttot").textContent=qv>0?fmt(ebct*vpt,1)+" min":"—";
-    $("o_depth").textContent=fmt(depth,2);
-    $("o_depthT").textContent=fmt(depth*vpt,2);
-    $("o_xdepth").textContent=fmt(xdepth,2);
-    $("o_qv").textContent=qv>0?fmt(qv,0):"—";
-    $("o_qvm").textContent=qv>0?fmt(qv*1440/1e6,3):"—";
-
-    drawVessel(dia,swd,depth,xdepth);
+    svg.innerHTML=gauge(45,hlr,Hmax,[lo,hi],(hlr>=lo&&hlr<=hi),"gpm/sf","HLR")+gauge(108,ebctv,Emax,[emin],(ebctv>=emin),"min/vsl","EBCT");
   }
 
-  $("basis").querySelectorAll("button").forEach(function(b){
-    b.addEventListener("click",function(){ setBasis(this.getAttribute("data-v")); $("site").value="custom"; compute(); });
-  });
-  $("config").querySelectorAll("button").forEach(function(b){
-    b.addEventListener("click",function(){ setConfig(this.getAttribute("data-v")); $("site").value="custom"; compute(); });
-  });
+  function badge(el,ok){ el.textContent=ok?"OK":"NG"; el.className="badge "+(ok?"ok":"ng"); }
+  function clr(el){ el.textContent=""; el.className="badge"; }
+
+  function compute(){
+    var dia=num($("dia").value), swd=num($("swd").value), dens=num($("dens").value);
+    var area=Math.PI/4*dia*dia, lbcf=dens*LBCF, depth, mass, mvcf;
+    if(S.basis==="mass"){ mass=num($("mass").value); mvcf=lbcf>0?mass/lbcf:0; depth=area>0?mvcf/area:0; }
+    else { depth=num($("depth").value); mvcf=depth*area; mass=mvcf*lbcf; }
+    var vpt=S.config==="leadlag"?2:1, bvgal=depth*area*GAL;
+    var N=num($("trains").value), R=S.redun, totTrains=N+R, totVessels=totTrains*vpt;
+    var inSvc=(S.inserv==="duty")?N:totTrains;
+    var exppct=num($("c_exp").value), xdepth=depth*(1+exppct/100), fb=swd-xdepth;
+    var fv=num($("flow").value), unit=$("unit").value, hasFlow=$("flow").value.trim()!=="" && fv>0;
+    var gpm=unit==="mgd"?fv*1e6/1440:fv;
+    var qv=(hasFlow&&inSvc>0)?gpm/inSvc:0;
+    var hlr=(qv>0&&area>0)?qv/area:0, ebctv=(qv>0&&bvgal>0)?bvgal/qv:0;
+    var hlrLo=num($("c_hlr_lo").value), hlrHi=num($("c_hlr_hi").value), ebMin=num($("c_ebct").value);
+
+    $("lbl_exp").textContent=fmt(exppct,0);
+    // config
+    $("o_trains").textContent=N+" / "+R+" / "+inSvc;
+    $("o_vpt").textContent=vpt+(vpt===2?" (lead+lag)":" (single)");
+    $("o_vtot").textContent=fmt(totVessels,0);
+    // quantities
+    $("o_area").textContent=fmt(area,1)+" sf"; $("o_areaT").textContent=fmt(area*totTrains,0)+" sf";
+    $("o_mv").textContent=fmt(mvcf,0)+" cf"; $("o_mvT").textContent=fmt(mvcf*totVessels,0)+" cf";
+    $("o_mass").textContent=fmt(mass,0)+" lb"; $("o_massT").textContent=fmt(mass*totVessels,0)+" lb";
+    $("o_bvgal").textContent=fmt(bvgal,0)+" gal"; $("o_bvT").textContent=fmt(bvgal*totVessels,0)+" gal";
+    // hydraulics
+    $("o_qv").textContent=qv>0?fmt(qv,0)+" gpm":"—"; $("o_qvT").textContent=hasFlow?fmt(gpm,0)+" gpm":"—";
+    $("o_hlr").textContent=qv>0?fmt(hlr,2):"—"; if(qv>0) badge($("b_hlr"),hlr>=hlrLo&&hlr<=hlrHi); else clr($("b_hlr"));
+    $("o_ebctv").textContent=qv>0?fmt(ebctv,1)+" min":"—"; if(qv>0) badge($("b_ebct"),ebctv>=ebMin); else clr($("b_ebct"));
+    $("o_ebctt").textContent=qv>0?fmt(ebctv*vpt,1)+" min":"—";
+    // bed
+    $("o_depth").textContent=fmt(depth,2)+" ft"; $("o_depthT").textContent=fmt(depth*vpt,2)+" ft";
+    $("o_xdepth").textContent=fmt(xdepth,2)+" ft";
+    $("o_fb").textContent=fmt(fb,2)+" ft"; badge($("b_fb"),fb>=0);
+    var fbcell=$("o_fb"); fbcell.style.color=fb<0?"var(--ng)":"";
+
+    $("figcap").textContent=(vpt===2?"Lead vessel shown · lag identical, in series":"Single-stage vessel");
+    drawVessel(dia,swd,depth,xdepth);
+    drawGauges(hlr,ebctv,hlrLo,hlrHi,ebMin,qv>0);
+  }
+
+  // events
+  $("basis").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){
+    var nb=this.getAttribute("data-v");
+    if(nb!==S.basis){ if(nb==="depth"){ $("depth").value=fmt(curDepth(),2); } else { var a=areaOf(),l=num($("dens").value)*LBCF; $("mass").value=fmt(num($("depth").value)*a*l,0); } }
+    setBasis(nb); $("site").value="custom"; compute(); }); });
+  $("config").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setSeg("config","config",this.getAttribute("data-v")); $("site").value="custom"; compute(); }); });
+  $("redun").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setSeg("redun","redun",num(this.getAttribute("data-v"))); $("site").value="custom"; compute(); }); });
+  $("inserv").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setSeg("inserv","inserv",this.getAttribute("data-v")); compute(); }); });
   $("site").addEventListener("change",function(){ applySite(this.value); });
-  ["dia","swd","mass","dens","depth","exp","flow","unit","trains"].forEach(function(id){
-    $(id).addEventListener("input",function(){ $("site").value="custom"; compute(); });
-  });
+  (function(){ var r=$("trains_s"),n=$("trains");
+    r.addEventListener("input",function(){ n.value=this.value; $("site").value="custom"; compute(); });
+    n.addEventListener("input",function(){ var v=num(this.value); r.value=Math.min(Math.max(v,+r.min),+r.max); $("site").value="custom"; compute(); }); })();
+  $("dia").addEventListener("change",function(){ var d=num(this.value),info=DIAM[d]; if(info){ if(S.basis==="mass") $("mass").value=fmt(info.mass,0); $("swd").value=info.ssh; } $("site").value="custom"; compute(); });
+  ["swd","dens","depth","flow","unit"].forEach(function(id){ $(id).addEventListener("input",function(){ $("site").value="custom"; compute(); }); });
+  $("mass").addEventListener("input",function(){ $("site").value="custom"; compute(); });
+  $("mass").addEventListener("blur",function(){ this.value=fmt(num(this.value),0); });
+  ["c_hlr_lo","c_hlr_hi","c_ebct","c_exp"].forEach(function(id){ $(id).addEventListener("input",compute); });
   $("resetbtn").addEventListener("click",function(){ location.reload(); });
 
-  // init: load NES
-  setBasis("mass"); setConfig("leadlag");
+  $("saveBtn").addEventListener("click",function(){ var code=prompt("Save current inputs as site code (e.g. ABC):"); if(!code)return;
+    code=code.trim().toUpperCase().slice(0,8); if(!code)return; saved[code]=readInputs(); persist(); rebuildSelect(); $("site").value="SAVED:"+code; });
+  $("deleteBtn").addEventListener("click",function(){ var v=$("site").value; if(v.indexOf("SAVED:")!==0){ alert("Select a saved site first."); return; }
+    var code=v.slice(6); if(confirm("Delete saved site "+code+"?")){ delete saved[code]; persist(); rebuildSelect(); $("site").value="custom"; } });
+  $("exportBtn").addEventListener("click",function(){ var blob=new Blob([JSON.stringify(saved,null,2)],{type:"application/json"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="vessel_sites.json"; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href); });
+  $("importBtn").addEventListener("click",function(){ $("importFile").click(); });
+  $("importFile").addEventListener("change",function(){ var f=this.files[0]; if(!f)return; var r=new FileReader();
+    r.onload=function(){ try{ var o=JSON.parse(r.result); Object.assign(saved,o); persist(); rebuildSelect(); alert("Imported "+Object.keys(o).length+" site(s)."); }catch(e){ alert("Could not read that file."); } };
+    r.readAsText(f); this.value=""; });
+
+  // init
+  loadSaved(); rebuildSelect(); setBasis("mass"); setSeg("config","config","leadlag"); setSeg("redun","redun",1); setSeg("inserv","inserv","duty");
   $("m_date").value=new Date().toLocaleDateString("en-US");
   $("site").value="NES"; applySite("NES");
 })();
