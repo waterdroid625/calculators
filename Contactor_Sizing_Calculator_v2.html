@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contactor Sizing Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f2233; --paper:#e9f1f6; --panel:#ffffff;
+    --line:#c9d8e2; --line-strong:#a4bccb; --muted:#566b79;
+    --accent:#0e6f93; --accent-d:#0a4d68; --accent-2:#e08a2b;
+    --water:#d4ecf5; --ok:#1f7a44; --ok-bg:#e2f1e7; --ng:#b3261e; --ng-bg:#fae5e3;
+    --grid:rgba(14,111,147,.07);
+    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 24px -16px rgba(15,34,51,.4);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:"IBM Plex Sans",system-ui,sans-serif;color:var(--ink);
+    background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/22px 22px,
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/22px 22px,var(--paper);
+    line-height:1.45;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 20px 60px;}
+
+  .hbtns{display:flex;gap:8px;margin-top:10px;}
+  .hbtn{font-family:"IBM Plex Sans",sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;text-decoration:none;padding:6px 12px;border:1.5px solid currentColor;transition:.12s;}
+  .hbtn.back{color:var(--accent);} .hbtn.back:hover{background:var(--accent);color:#fff;}
+  .hbtn.reset{color:var(--accent-2);} .hbtn.reset:hover{background:var(--accent-2);color:#fff;}
+
+  header{border:1.5px solid var(--ink);background:var(--panel);box-shadow:var(--shadow);}
+  .titlebar{display:flex;flex-wrap:wrap;align-items:stretch;}
+  .titlebar .main{flex:1 1 380px;padding:16px 20px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;}
+  .titlebar .main h1{margin:0;font-size:20px;letter-spacing:.3px;font-weight:700;}
+  .titlebar .main p{margin:3px 0 0;color:var(--muted);font-size:12.5px;}
+  .titlebar .meta{flex:1 1 300px;display:grid;grid-template-columns:repeat(2,1fr);}
+  .titlebar .meta label{display:flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border-left:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 12px;}
+  .titlebar .meta input{border:none;background:transparent;font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink);width:100%;min-width:0;outline:none;}
+  .modebar{display:flex;border:1.5px solid var(--ink);border-top:none;background:var(--panel);}
+  .modebar button{flex:1;font-family:"IBM Plex Sans",sans-serif;font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border:none;background:#eef5f9;color:var(--muted);padding:11px;cursor:pointer;border-right:1px solid var(--line);}
+  .modebar button:last-child{border-right:none;}
+  .modebar button.on{background:var(--accent-d);color:#fff;}
+
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:18px;margin-top:18px;}
+  @media(max-width:860px){.grid{grid-template-columns:1fr;}}
+
+  .card{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);}
+  .card > .cap{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:var(--accent-d);padding:7px 14px;display:flex;align-items:center;gap:9px;}
+  .card > .cap::before{content:"";width:7px;height:7px;background:var(--accent-2);display:inline-block;}
+  .card .body{padding:14px 16px 18px;}
+
+  .row{margin:0 0 13px;} .row:last-child{margin-bottom:0;}
+  .row .lab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px;}
+  .row .lab span:first-child{font-size:13px;font-weight:500;}
+  .row .lab .unit{font-size:11px;color:var(--muted);letter-spacing:.3px;text-align:right;}
+  .val,select.val{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:600;color:var(--accent);border:1px solid var(--line-strong);background:#f4f9fb;padding:6px 8px;width:100%;outline:none;}
+  input.val{text-align:right;}
+  .val:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(14,111,147,.18);}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+  .flowline{display:grid;grid-template-columns:1fr 84px;gap:8px;}
+  .sliderline{display:flex;align-items:center;gap:10px;}
+  .sliderline .val{width:64px;flex:0 0 auto;}
+  input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:3px;background:var(--line-strong);border-radius:2px;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
+  .seg{display:inline-flex;border:1px solid var(--line-strong);overflow:hidden;width:100%;}
+  .seg button{flex:1;font-size:12px;font-weight:500;border:none;background:#f4f9fb;color:var(--muted);padding:7px 9px;cursor:pointer;border-right:1px solid var(--line-strong);}
+  .seg button:last-child{border-right:none;}
+  .seg button.on{background:var(--accent);color:#fff;}
+  .seg.sm button{font-size:11.5px;padding:6px 6px;}
+  .hide{display:none!important;}
+  .subhdr{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:4px 0 12px;padding-bottom:6px;border-bottom:1px dashed var(--line);}
+
+  .sitebar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;}
+  .minibtn{font-family:"IBM Plex Sans",sans-serif;font-size:11px;font-weight:600;letter-spacing:.3px;cursor:pointer;background:transparent;color:var(--accent);border:1.5px solid var(--accent);padding:5px 10px;}
+  .minibtn:hover{background:var(--accent);color:#fff;}
+  .minibtn.danger{color:var(--ng);border-color:var(--ng);} .minibtn.danger:hover{background:var(--ng);color:#fff;}
+  .savenote{font-size:10.5px;color:var(--muted);margin-top:6px;line-height:1.4;}
+
+  .insbar{display:flex;align-items:center;gap:10px;margin:4px 0 14px;}
+  .insbar .lbl{font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;}
+
+  .rightcol{display:flex;flex-direction:column;gap:18px;min-width:0;}
+  .fig{display:flex;justify-content:center;padding:6px 0;} .fig svg{width:100%;height:auto;}
+  .figrow{display:flex;justify-content:center;align-items:center;gap:6px;padding:4px 0 4px;}
+  .figrow svg{width:100%;height:auto;}
+  .vcell{flex:1.5;max-width:240px;} .gcell{flex:1;max-width:150px;}
+  .figcap{text-align:center;font-size:11px;color:var(--muted);font-family:"IBM Plex Mono",monospace;margin:0 0 12px;}
+
+  table.qt{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:4px;}
+  table.qt td{padding:7px 10px;border-bottom:1px solid var(--line);}
+  table.qt tr td:first-child{color:var(--muted);}
+  table.qt tr td:nth-child(2),table.qt tr td:nth-child(3){font-family:"IBM Plex Mono",monospace;font-weight:600;text-align:right;white-space:nowrap;}
+  table.qt tr td:nth-child(3){color:var(--accent);}
+  table.qt tr.head td{background:#f4f9fb;color:var(--ink)!important;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.7px;border-bottom:1px solid var(--line-strong);}
+  table.qt tr.head td:nth-child(2),table.qt tr.head td:nth-child(3){text-align:right;color:var(--ink)!important;}
+  .badge{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;padding:1px 6px;border-radius:2px;letter-spacing:.5px;margin-left:2px;}
+  .badge.ok{background:var(--ok-bg);color:var(--ok);} .badge.ng{background:var(--ng-bg);color:var(--ng);}
+
+  .crit{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);margin-top:16px;padding-top:13px;}
+  .crit .citem{display:flex;align-items:center;gap:7px;}
+  .crit input{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border:1px solid var(--line-strong);background:#f4f9fb;padding:4px 6px;width:50px;text-align:right;outline:none;}
+
+  .note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.55;}
+  .foot{margin-top:18px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.3px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="titlebar">
+      <div class="main">
+        <h1>Contactor Sizing</h1>
+        <p>EBCT, loading rate, media &amp; cost for GAC pressure vessels and gravity filters</p>
+        <div class="hbtns">
+          <button class="hbtn reset" id="resetbtn" title="Restore defaults">&#8635; Reset</button>
+        </div>
+      </div>
+      <div class="meta">
+        <label>Project <input id="m_proj" placeholder="—"></label>
+        <label>Calc No. <input id="m_calc" placeholder="—"></label>
+        <label>By <input id="m_by" placeholder="—"></label>
+        <label>Date <input id="m_date" placeholder="—"></label>
+      </div>
+    </div>
+    <div class="modebar" id="mode">
+      <button data-v="vessel" class="on">Pressure vessels</button>
+      <button data-v="filter">Gravity filters</button>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- INPUTS -->
+    <section class="card">
+      <div class="cap">Inputs</div>
+      <div class="body">
+
+        <div class="row">
+          <div class="lab"><span>Total flow</span></div>
+          <div class="flowline"><input class="val mono" id="flow" value="60"><select class="val" id="unit"><option value="mgd">mgd</option><option value="gpm">gpm</option></select></div>
+        </div>
+
+        <!-- VESSEL INPUTS -->
+        <div id="vin">
+          <div class="subhdr">Vessel</div>
+          <div class="row"><div class="lab"><span>Vessel arrangement</span></div>
+            <div class="seg" id="config"><button data-v="leadlag">Lead / lag</button><button data-v="single" class="on">Single stage</button></div></div>
+          <div class="row"><div class="lab"><span>Duty trains (N)</span><span class="unit" id="o_inst_note">flow paths</span></div>
+            <div class="sliderline"><input type="range" id="trains_s" min="1" max="60" step="1" value="42"><input class="val mono" id="trains" value="42"></div></div>
+          <div class="row"><div class="lab"><span>Redundancy</span><span class="unit">standby</span></div>
+            <div class="seg sm" id="redun"><button data-v="0">N+0</button><button data-v="1">N+1</button><button data-v="2" class="on">N+2</button><button data-v="3">N+3</button><button data-v="4">N+4</button></div></div>
+          <div class="two">
+            <div class="row"><div class="lab"><span>Diameter</span><span class="unit">ft</span></div>
+              <select class="val" id="dia"><option value="14">14 ft</option><option value="12" selected>12 ft</option><option value="10">10 ft</option><option value="8">8 ft</option><option value="6">6 ft</option><option value="4">4 ft</option></select></div>
+            <div class="row"><div class="lab"><span>Straight side height</span><span class="unit">ft</span></div><input class="val mono" id="swd" value="16"></div>
+          </div>
+          <div class="subhdr">Media</div>
+          <div class="row"><div class="lab"><span>Bed depth basis</span></div>
+            <div class="seg" id="basis"><button data-v="mass" class="on">By media mass</button><button data-v="depth">By bed depth</button></div></div>
+          <div id="massbox"><div class="two">
+            <div class="row"><div class="lab"><span>Media per vessel</span><span class="unit">lbs</span></div><input class="val mono" id="mass" value="40,000"></div>
+            <div class="row"><div class="lab"><span>Operational density</span><span class="unit">g/cc</span></div><input class="val mono" id="dens" value="0.485"></div>
+          </div></div>
+          <div id="depthbox" class="hide"><div class="row"><div class="lab"><span>Bed depth</span><span class="unit">ft</span></div><input class="val mono" id="depth" value="5"></div></div>
+          <div class="subhdr">Layout &amp; spacing</div>
+          <div class="two">
+            <div class="row"><div class="lab"><span>Vessels per row</span><span class="unit">guide</span></div><input class="val mono" id="v_perrow" value="11"></div>
+            <div class="row"><div class="lab"><span>Valve tree</span><span class="unit">pair grouping</span></div>
+              <div class="seg sm" id="v_tree"><button data-v="on" class="on">On</button><button data-v="off">Off</button></div></div>
+          </div>
+          <div class="two">
+            <div class="row"><div class="lab"><span>Within-train gap</span><span class="unit">ft, clear</span></div><input class="val mono" id="v_strain" value="8"></div>
+            <div class="row"><div class="lab"><span>Between-train gap</span><span class="unit">ft, clear</span></div><input class="val mono" id="v_sadj" value="4"></div>
+          </div>
+          <div class="row"><div class="lab"><span>Row-to-row gap</span><span class="unit">ft, clear</span></div><input class="val mono" id="v_srow" value="4"></div>
+          <div class="two">
+            <div class="row"><div class="lab"><span>Drive aisle</span><span class="unit">center bay</span></div>
+              <div class="seg sm" id="v_aisle_seg"><button data-v="on" class="on">On</button><button data-v="off">Off</button></div></div>
+            <div class="row"><div class="lab"><span>Aisle width</span><span class="unit">ft</span></div><input class="val mono" id="v_aisle" value="14"></div>
+          </div>
+          <div class="two">
+            <div class="row"><div class="lab"><span>Perimeter clearance</span><span class="unit">ft</span></div><input class="val mono" id="v_perim" value="4"></div>
+            <div class="row"><div class="lab"><span>Wall thickness</span><span class="unit">ft</span></div><input class="val mono" id="v_wall" value="1"></div>
+          </div>
+        </div>
+
+        <!-- FILTER INPUTS -->
+        <div id="fin" class="hide">
+          <div class="subhdr">Filter cell &amp; sizing</div>
+          <div class="row"><div class="lab"><span>Cell length</span><span class="unit">ft, 2-ft incr.</span></div>
+            <div class="sliderline"><input type="range" id="f_len_s" min="10" max="60" step="2" value="36"><input class="val mono" id="f_len" value="36"></div></div>
+          <div class="row"><div class="lab"><span>Cell width</span><span class="unit">ft, 2-ft incr.</span></div>
+            <div class="sliderline"><input type="range" id="f_wid_s" min="6" max="40" step="2" value="24"><input class="val mono" id="f_wid" value="24"></div></div>
+          <div class="row"><div class="lab"><span>Bed depth</span><span class="unit">ft, 6-in incr.</span></div>
+            <div class="sliderline"><input type="range" id="f_depth_s" min="2" max="15" step="0.5" value="5"><input class="val mono" id="f_depth" value="5"></div></div>
+          <div class="row"><div class="lab"><span>Redundancy</span><span class="unit">standby cells</span></div>
+            <div class="seg sm" id="f_redun"><button data-v="0">N+0</button><button data-v="1">N+1</button><button data-v="2" class="on">N+2</button><button data-v="3">N+3</button><button data-v="4">N+4</button></div></div>
+          <div class="subhdr">Media</div>
+          <div class="two">
+            <div class="row"><div class="lab"><span>Operational density</span><span class="unit">g/cc</span></div><input class="val mono" id="f_dens" value="0.485"></div>
+            <div class="row"><div class="lab"><span>Water above media</span><span class="unit">ft, freeboard</span></div><input class="val mono" id="f_above" value="6"></div>
+          </div>
+          <div class="subhdr">Layout &amp; spacing</div>
+          <div class="row"><div class="lab"><span>Number of rows</span><span class="unit">banks of cells</span></div><input class="val mono" id="f_rows" value="2"></div>
+          <div class="two">
+            <div class="row"><div class="lab"><span>Common wall</span><span class="unit">in</span></div><input class="val mono" id="f_cw" value="12"></div>
+            <div class="row"><div class="lab"><span>Exterior wall</span><span class="unit">in</span></div><input class="val mono" id="f_ew" value="18"></div>
+          </div>
+          <div class="row"><div class="lab"><span>Pipe gallery width</span><span class="unit" id="f_galnote">ft &middot; 1 gallery per 2 rows</span></div><input class="val mono" id="f_gal" value="20"></div>
+        </div>
+
+        <!-- BACKWASH & MEDIA LIFE (shared) -->
+        <div class="subhdr">Backwash &amp; media life</div>
+        <div class="row"><div class="lab"><span>Backwash rate</span><span class="unit">gpm/sf</span></div><input class="val mono" id="bw_rate" value="12"></div>
+        <div class="two">
+          <div class="row"><div class="lab"><span>Initial duration</span><span class="unit">min, startup</span></div><input class="val mono" id="bw_init" value="35"></div>
+          <div class="row"><div class="lab"><span>Routine duration</span><span class="unit">min</span></div><input class="val mono" id="bw_routine" value="15"></div>
+        </div>
+        <div class="row">
+          <div class="lab"><span>Treatment capacity</span><span class="unit" id="cap_conv">&rarr; 120,000 L/kg</span></div>
+          <div class="flowline"><input class="val mono" id="cap_val" value="58,200"><select class="val" id="cap_unit"><option value="BV" selected>BV</option><option value="Lkg">L/kg</option></select></div>
+        </div>
+
+
+
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <div class="rightcol">
+    <section class="card">
+      <div class="cap">Sizing &amp; validation</div>
+      <div class="body">
+
+        <!-- VESSEL RESULTS -->
+        <div id="vout">
+          <div class="insbar"><span class="lbl">In service:</span>
+            <div class="seg" id="inserv"><button data-v="duty" class="on">Duty units only</button><button data-v="all">All units</button></div></div>
+          <div class="figrow">
+            <div class="figcell vcell"><svg id="vfig" viewBox="0 0 240 320"></svg></div>
+            <div class="figcell gcell"><svg id="gfigV" viewBox="0 0 150 320"></svg></div>
+          </div>
+          <div class="figcap" id="figcapV">—</div>
+          <div class="subhdr">Per vessel vs per train</div>
+          <table class="qt">
+            <tr class="head"><td>Property</td><td>Per vessel</td><td>Per train</td></tr>
+            <tr><td>EBCT <span id="bv_ebct" class="badge"></span></td><td id="ov_ebctv">—</td><td id="ov_ebctpt">—</td></tr>
+            <tr><td>HLR <span id="bv_hlr" class="badge"></span></td><td id="ov_hlr">—</td><td>—</td></tr>
+            <tr><td>Operational bed depth</td><td id="ov_depthv">—</td><td id="ov_depthpt">—</td></tr>
+            <tr><td>Expanded bed depth (<span id="ov_lblexp">25</span>%)</td><td id="ov_xdepthv">—</td><td>—</td></tr>
+            <tr><td>Freeboard <span id="bv_fb" class="badge"></span></td><td id="ov_fb">—</td><td>—</td></tr>
+          </table>
+          <div class="subhdr" style="margin-top:16px;">Per train &amp; total (system)</div>
+          <table class="qt">
+            <tr class="head"><td>Property</td><td>Per train</td><td>Total (system)</td></tr>
+            <tr><td>Vessels installed</td><td id="ov_vpt">—</td><td id="ov_vinst">—</td></tr>
+            <tr><td>Vessels in service</td><td>—</td><td id="ov_vsvc">—</td></tr>
+            <tr><td>Flow rate (mgd)</td><td id="ov_qmgd">—</td><td id="ov_qmgdT">—</td></tr>
+            <tr><td>Flow rate (gpm)</td><td id="ov_qgpm">—</td><td id="ov_qgpmT">—</td></tr>
+            <tr><td>Bed / filter area</td><td id="ov_area">—</td><td id="ov_areaT">—</td></tr>
+            <tr><td>Bed volume</td><td id="ov_bvpt">—</td><td id="ov_bvT">—</td></tr>
+            <tr><td>Media volume</td><td id="ov_mvpt">—</td><td id="ov_mvT">—</td></tr>
+            <tr><td>Media mass</td><td id="ov_masspt">—</td><td id="ov_massT">—</td></tr>
+          </table>
+        </div>
+
+        <!-- FILTER RESULTS -->
+        <div id="fout" class="hide">
+          <div class="figrow">
+            <div class="figcell vcell"><svg id="ffig" viewBox="0 0 240 320"></svg></div>
+            <div class="figcell gcell"><svg id="gfigF" viewBox="0 0 150 320"></svg></div>
+          </div>
+          <div class="figcap" id="figcapF">—</div>
+          <table class="qt">
+            <tr class="head"><td>Property</td><td>Per cell</td><td>Total</td></tr>
+            <tr><td>Cell size (W &times; L)</td><td id="of_cell">—</td><td>—</td></tr>
+            <tr><td>Duty cells (auto, even)</td><td>—</td><td id="of_cells">—</td></tr>
+            <tr><td>Installed cells</td><td>—</td><td id="of_inst">—</td></tr>
+            <tr><td>Filtration rate, firm (duty in svc) <span id="bf_rate" class="badge"></span></td><td>—</td><td id="of_rate">—</td></tr>
+            <tr><td>Filtration rate, all in svc</td><td>—</td><td id="of_ratenorm">—</td></tr>
+            <tr><td>EBCT, firm <span id="bf_ebct" class="badge"></span></td><td>—</td><td id="of_ebct">—</td></tr>
+            <tr><td>Filter area (installed)</td><td id="of_areapc">—</td><td id="of_area">—</td></tr>
+            <tr><td>Bed volume</td><td id="of_bvpc">—</td><td id="of_bvT">—</td></tr>
+            <tr><td>Media volume</td><td id="of_mvpc">—</td><td id="of_mvT">—</td></tr>
+            <tr><td>Media mass</td><td id="of_masspc">—</td><td id="of_massT">—</td></tr>
+            <tr><td>Expanded bed depth (<span id="of_lblexp">25</span>%)</td><td id="of_xdepth">—</td><td>—</td></tr>
+            <tr><td>Freeboard above media <span id="bf_fb" class="badge"></span></td><td id="of_fb">—</td><td>—</td></tr>
+          </table>
+        </div>
+
+
+
+        <div class="subhdr" style="margin-top:16px;">Backwash &amp; media life</div>
+        <table class="qt">
+          <tr class="head"><td>Item</td><td id="bw_unitlab">Per vessel</td><td></td></tr>
+          <tr><td>Backwash flow</td><td id="o_bwflow">—</td><td></td></tr>
+          <tr><td>Backwash volume per event (routine)</td><td id="o_bwvol">—</td><td></td></tr>
+          <tr><td>Total startup backwash (all units)</td><td id="o_bwstart">—</td><td></td></tr>
+          <tr><td>Treatment capacity</td><td id="o_bv">—</td><td></td></tr>
+          <tr><td>Throughput per bed</td><td id="o_thru">—</td><td></td></tr>
+          <tr><td>Est. media life (per bed)</td><td id="o_life">—</td><td></td></tr>
+        </table>
+
+        <div class="crit">
+          <span style="color:var(--ink);font-weight:600;">Criteria:</span>
+          <div class="citem">Loading <input id="c_hlr_lo" value="2"> – <input id="c_hlr_hi" value="10"> gpm/sf</div>
+          <div class="citem">EBCT ≥ <input id="c_ebct" value="10"> min</div>
+          <div class="citem">Expansion <input id="c_exp" value="25"> %</div>
+          <div class="citem">Min freeboard ≥ <input id="c_fbmin" value="1"> ft</div>
+        </div>
+
+        <div class="note" id="note">Loading rate = HLR (vessels) or filtration rate (filters), both gpm/sf. EBCT and loading rate pass-fail are also on the gauges. Required filter area = flow ÷ design rate; firm rate uses the remaining cells with the stated number out. Unit costs are placeholders — confirm against current pricing.</div>
+
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="cap">Layout &amp; spacing</div>
+      <div class="body">
+        <div class="fig"><svg id="plan" viewBox="0 0 380 320"></svg></div>
+        <div class="figcap" id="figcapL">—</div>
+        <table class="qt">
+          <tr class="head"><td>Dimension</td><td>Value</td></tr>
+          <tr><td id="ol_unitlab">Units placed</td><td id="ol_count">—</td></tr>
+          <tr><td>Grid</td><td id="ol_grid">—</td></tr>
+          <tr class="lfonly"><td>Derived cell size</td><td id="ol_cell">—</td></tr>
+          <tr><td>Interior length</td><td id="ol_intL">—</td></tr>
+          <tr><td>Interior width</td><td id="ol_intW">—</td></tr>
+          <tr><td>Overall length (incl. walls)</td><td id="ol_outL">—</td></tr>
+          <tr><td>Overall width (incl. walls)</td><td id="ol_outW">—</td></tr>
+          <tr><td>Footprint area</td><td id="ol_area">—</td></tr>
+          <tr><td>Footprint</td><td id="ol_acre">—</td></tr>
+        </table>
+        <div class="note">Vessel count and diameter (or filter required area) flow from the sizing pane above — change a sizing input and the layout re-scales. Cell length is derived from required per-cell area at the cell width you set. Confirm clearances against equipment cut sheets and code aisles.</div>
+      </div>
+    </section>
+    </div>
+  </div>
+
+  <div class="foot">Planning-level sizing &middot; HLR = Q/A &middot; EBCT = bed vol gal / Q &middot; filter area = Q / rate</div>
+
+</div>
+
+<script>
+(function(){
+  function $(id){return document.getElementById(id);}
+  function num(v){var x=parseFloat(String(v).replace(/,/g,''));return isFinite(x)?x:0;}
+  function fmt(x,d){ if(!isFinite(x))return"—"; return x.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function rnd(x,d){ var m=Math.pow(10,d); return Math.round(x*m)/m; }
+  function money(x){ return "$"+fmt(x,0); }
+  var GAL=7.480519, LBCF=62.428, FLOWK=1e6/1440, KEY="vpc_sites_v1";
+  var S={ basis:"mass", config:"single", redun:2, inserv:"duty", fredun:2, aisle:"on", tree:"on" };
+  var mode="vessel", lastUnit="mgd";
+
+  var BUILTIN_ORDER=["custom","PIK","NES","ALN"];
+  var DIAM={14:{mass:60000,ssh:18},12:{mass:40000,ssh:16},10:{mass:20000,ssh:12},8:{mass:10000,ssh:10},6:{mass:3500,ssh:8},4:{mass:1200,ssh:6}};
+  function setSeg(wrap,key,v){ S[key]=v; $(wrap).querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-v")==String(v));}); }
+  function setBasis(b){ S.basis=b; $("basis").querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-v")===b);});
+    $("massbox").classList.toggle("hide",b!=="mass"); $("depthbox").classList.toggle("hide",b!=="depth"); }
+  function syncSliders(){ var t=$("trains_s"); t.value=Math.min(Math.max(num($("trains").value),+t.min),+t.max); }
+  function areaOf(){ var d=num($("dia").value); return Math.PI/4*d*d; }
+  function curDepth(){ if(S.basis==="depth") return num($("depth").value); var a=areaOf(),l=num($("dens").value)*LBCF; return (a>0&&l>0)?num($("mass").value)/l/a:0; }
+
+  function setMode(m){ mode=m;
+    $("mode").querySelectorAll("button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-v")===m);});
+    $("vin").classList.toggle("hide",m!=="vessel"); $("fin").classList.toggle("hide",m!=="filter");
+    $("vout").classList.toggle("hide",m!=="vessel"); $("fout").classList.toggle("hide",m!=="filter");
+    compute(); }
+
+  function badge(el,ok){ el.textContent=ok?"OK":"NG"; el.className="badge "+(ok?"ok":"ng"); }
+  function clr(el){ el.textContent=""; el.className="badge"; }
+
+  // ---- shared drawing ----
+  function gaugeSVG(svg,vals){ var top=26, trackBot=286, trackH=trackBot-top;
+    var INK="#0f2233",GRN="#41ab73",RED="#c0392b",TRK="#e3eef4",AC2="#e08a2b",MUT="#566b79";
+    function one(cx,val,max,lines,pass,vlabel,axis,hasV){ var bw=34,x=cx-bw/2,s=[];
+      s.push('<rect x="'+x+'" y="'+top+'" width="'+bw+'" height="'+trackH+'" fill="'+TRK+'" stroke="#cdd9e1" stroke-width="1"/>');
+      function yf(v){ return trackBot-Math.max(0,Math.min(v/max,1))*trackH; }
+      if(hasV){ var yv=yf(val); s.push('<rect x="'+x+'" y="'+yv+'" width="'+bw+'" height="'+(trackBot-yv)+'" fill="'+(pass?GRN:RED)+'"/>');
+        s.push('<text x="'+cx+'" y="'+(top-8)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="'+(pass?GRN:RED)+'">'+fmt(val,(max>20?0:1))+'</text>');
+      } else { s.push('<text x="'+cx+'" y="'+(top-8)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" fill="'+MUT+'">—</text>'); }
+      lines.forEach(function(cv){ if(cv<=max){ var y=yf(cv);
+        s.push('<line x1="'+(x-5)+'" y1="'+y+'" x2="'+(x+bw+5)+'" y2="'+y+'" stroke="'+AC2+'" stroke-width="1.4" stroke-dasharray="4 2"/>');
+        s.push('<text x="'+(x+bw+8)+'" y="'+(y+3)+'" font-family="IBM Plex Mono" font-size="9" fill="'+AC2+'">'+fmt(cv,0)+'</text>'); } });
+      s.push('<text x="'+cx+'" y="'+(trackBot+16)+'" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" font-weight="600" fill="'+INK+'">'+axis+'</text>');
+      s.push('<text x="'+cx+'" y="'+(trackBot+28)+'" text-anchor="middle" font-family="IBM Plex Sans" font-size="8.5" fill="'+MUT+'">'+vlabel+'</text>');
+      return s.join(""); }
+    svg.innerHTML=one(45,vals.lr,vals.lrMax,[vals.lrLo,vals.lrHi],vals.lrPass,"gpm/sf",vals.lrAxis,vals.has)
+      +one(108,vals.eb,vals.ebMax,[vals.ebMin],vals.ebPass,"min",vals.ebAxis,vals.has); }
+
+  function drawVessel(dia,ssh,depth,xdepth){
+    var svg=$("vfig"); if(dia<=0||ssh<=0){svg.innerHTML="";return;}
+    var vw=240,padT=22,padB=40, availH=320-padT-padB, availW=vw-150;
+    var sc=availH/(ssh+dia/2); var wpx=dia*sc; if(wpx>availW){ sc=availW/dia; wpx=availW; }
+    var capH=wpx/4, bodyH=ssh*sc, cx=vw/2, x0=cx-wpx/2, x1=cx+wpx/2;
+    var yBodyTop=padT+capH, yBodyBot=yBodyTop+bodyH;
+    var bedH=Math.min(depth,ssh)*sc, yBed=yBodyBot-bedH;
+    var xH=Math.min(xdepth,ssh)*sc, yX=yBodyBot-xH;
+    var INK="#0f2233",ACC="#0e6f93",AC2="#e08a2b",MEDIA="#b3b9bf",EXP="#a9d8ea";
+    var id="v"+Math.floor(Math.random()*99999); var p=[];
+    p.push('<defs>');
+    p.push('<clipPath id="sil'+id+'"><rect x="'+x0+'" y="'+yBodyTop+'" width="'+wpx+'" height="'+bodyH+'"/><ellipse cx="'+cx+'" cy="'+yBodyTop+'" rx="'+(wpx/2)+'" ry="'+capH+'"/><ellipse cx="'+cx+'" cy="'+yBodyBot+'" rx="'+(wpx/2)+'" ry="'+capH+'"/></clipPath>');
+    p.push('<clipPath id="top'+id+'"><rect x="0" y="0" width="'+vw+'" height="'+yBodyTop+'"/></clipPath>');
+    p.push('<clipPath id="bot'+id+'"><rect x="0" y="'+yBodyBot+'" width="'+vw+'" height="'+(320-yBodyBot)+'"/></clipPath>');
+    p.push('</defs>');
+    p.push('<g clip-path="url(#sil'+id+')">');
+    p.push('<rect x="'+(x0-2)+'" y="'+(yBodyTop-capH-2)+'" width="'+(wpx+4)+'" height="'+(bodyH+2*capH+4)+'" fill="#fff"/>');
+    p.push('<rect x="'+x0+'" y="'+yX+'" width="'+wpx+'" height="'+(yBed-yX)+'" fill="'+EXP+'"/>');
+    p.push('<rect x="'+x0+'" y="'+yBed+'" width="'+wpx+'" height="'+((yBodyBot+capH)-yBed)+'" fill="'+MEDIA+'"/>');
+    p.push('<line x1="'+x0+'" y1="'+yX+'" x2="'+x1+'" y2="'+yX+'" stroke="'+AC2+'" stroke-width="1.8" stroke-dasharray="5 3"/>');
+    p.push('</g>');
+    p.push('<line x1="'+x0+'" y1="'+yBodyTop+'" x2="'+x0+'" y2="'+yBodyBot+'" stroke="'+INK+'" stroke-width="2"/>');
+    p.push('<line x1="'+x1+'" y1="'+yBodyTop+'" x2="'+x1+'" y2="'+yBodyBot+'" stroke="'+INK+'" stroke-width="2"/>');
+    p.push('<ellipse cx="'+cx+'" cy="'+yBodyTop+'" rx="'+(wpx/2)+'" ry="'+capH+'" fill="none" stroke="'+INK+'" stroke-width="2" clip-path="url(#top'+id+')"/>');
+    p.push('<ellipse cx="'+cx+'" cy="'+yBodyBot+'" rx="'+(wpx/2)+'" ry="'+capH+'" fill="none" stroke="'+INK+'" stroke-width="2" clip-path="url(#bot'+id+')"/>');
+    function dim(yA,yB,label,color){ var xL=x1+12;
+      p.push('<line x1="'+xL+'" y1="'+yA+'" x2="'+xL+'" y2="'+yB+'" stroke="'+color+'" stroke-width="1"/>');
+      p.push('<line x1="'+(xL-4)+'" y1="'+yA+'" x2="'+(xL+4)+'" y2="'+yA+'" stroke="'+color+'" stroke-width="1"/>');
+      p.push('<line x1="'+(xL-4)+'" y1="'+yB+'" x2="'+(xL+4)+'" y2="'+yB+'" stroke="'+color+'" stroke-width="1"/>');
+      p.push('<text x="'+(xL+6)+'" y="'+((yA+yB)/2+3.5)+'" font-family="IBM Plex Mono" font-size="10" fill="'+color+'">'+label+'</text>'); }
+    dim(yBed,yBodyBot,fmt(depth,1)+"' bed","#7f868c");
+    dim(yBodyTop,yX,fmt(ssh-xdepth,2)+"' FB",ACC);
+    p.push('<text x="'+cx+'" y="'+(yBodyBot+capH+22)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="'+INK+'">&#216; '+fmt(dia,1)+" ft</text>");
+    svg.innerHTML=p.join("");
+  }
+
+  function drawFilter(depth,xdepth,above){
+    var svg=$("ffig"); var box=depth+above; if(box<=0){svg.innerHTML="";return;}
+    var vw=240,padT=22,padB=40, availH=320-padT-padB, w=120;
+    var sc=availH/box, bh=box*sc, cx=vw/2, x0=cx-w/2, x1=cx+w/2, yTop=padT, yBot=yTop+bh;
+    var bedH=depth*sc, yBed=yBot-bedH, xH=Math.min(xdepth,box)*sc, yX=yBot-xH;
+    var INK="#0f2233",ACC="#0e6f93",AC2="#e08a2b",MEDIA="#b3b9bf",EXP="#a9d8ea";
+    var p=[];
+    p.push('<rect x="'+x0+'" y="'+yTop+'" width="'+w+'" height="'+bh+'" fill="#fff"/>');
+    p.push('<rect x="'+x0+'" y="'+yX+'" width="'+w+'" height="'+(yBed-yX)+'" fill="'+EXP+'"/>');
+    p.push('<rect x="'+x0+'" y="'+yBed+'" width="'+w+'" height="'+bedH+'" fill="'+MEDIA+'"/>');
+    p.push('<line x1="'+x0+'" y1="'+yX+'" x2="'+x1+'" y2="'+yX+'" stroke="'+AC2+'" stroke-width="1.8" stroke-dasharray="5 3"/>');
+    p.push('<rect x="'+x0+'" y="'+yTop+'" width="'+w+'" height="'+bh+'" fill="none" stroke="'+INK+'" stroke-width="2"/>');
+    function dim(yA,yB,label,color){ var xL=x1+12;
+      p.push('<line x1="'+xL+'" y1="'+yA+'" x2="'+xL+'" y2="'+yB+'" stroke="'+color+'" stroke-width="1"/>');
+      p.push('<line x1="'+(xL-4)+'" y1="'+yA+'" x2="'+(xL+4)+'" y2="'+yA+'" stroke="'+color+'" stroke-width="1"/>');
+      p.push('<line x1="'+(xL-4)+'" y1="'+yB+'" x2="'+(xL+4)+'" y2="'+yB+'" stroke="'+color+'" stroke-width="1"/>');
+      p.push('<text x="'+(xL+6)+'" y="'+((yA+yB)/2+3.5)+'" font-family="IBM Plex Mono" font-size="10" fill="'+color+'">'+label+'</text>'); }
+    dim(yBed,yBot,fmt(depth,1)+"' bed","#7f868c");
+    dim(yTop,yX,fmt(box-xdepth,2)+"' FB",ACC);
+    p.push('<text x="'+cx+'" y="'+(yBot+24)+'" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" fill="'+INK+'">filter cell (section)</text>');
+    svg.innerHTML=p.join("");
+  }
+
+  function planDims(p,ox,oy,bw,bh,outL,outW){ var AC2="#e08a2b";
+    p.push('<line x1="'+ox+'" y1="'+(oy-12)+'" x2="'+(ox+bw)+'" y2="'+(oy-12)+'" stroke="'+AC2+'" stroke-width="1"/>');
+    p.push('<text x="'+(ox+bw/2)+'" y="'+(oy-16)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="'+AC2+'">'+fmt(outL,0)+"'</text>");
+    p.push('<line x1="'+(ox-12)+'" y1="'+oy+'" x2="'+(ox-12)+'" y2="'+(oy+bh)+'" stroke="'+AC2+'" stroke-width="1"/>');
+    p.push('<text x="'+(ox-15)+'" y="'+(oy+bh/2+3)+'" text-anchor="end" font-family="IBM Plex Mono" font-size="10" fill="'+AC2+'">'+fmt(outW,0)+"'</text>"); }
+
+  function drawVesselPlan(count,perRow,dia,vpt,gTrain,gAdj,gRow,perim,wall,aisleOn,aisleW,treeOn){
+    var svg=$("plan");
+    var pairing=(vpt>1)||treeOn, gsize=pairing?((vpt>1)?vpt:2):1;
+    // when pairing, force whole pairs per row (vessels-per-row rounds to an even guide)
+    var cols=pairing?Math.max(2,2*Math.round(perRow/2)):Math.max(1,perRow);
+    var rows=Math.max(1,Math.ceil(count/cols));
+    var srow=dia+gRow;
+    // x-centers along a row: within-group gap inside a pair, between-group gap across pairs
+    var xc=[], x=perim+dia/2;
+    for(var c=0;c<cols;c++){ if(c>0){ var inGrp=(gsize>1)&&((c%gsize)!==0); x+=dia+(inGrp?gTrain:gAdj); } xc.push(x); }
+    // y-centers: optional drive aisle inserted as a center bay between the two banks of rows
+    var split=(aisleOn&&rows>1)?Math.ceil(rows/2):-1;
+    var yc=[]; for(var r=0;r<rows;r++){ if(r===0) yc.push(perim+dia/2); else if(r===split) yc.push(yc[r-1]+dia/2+aisleW+dia/2); else yc.push(yc[r-1]+srow); }
+    var intL=xc[cols-1]+dia/2+perim, intW=yc[rows-1]+dia/2+perim, outL=intL+2*wall, outW=intW+2*wall;
+    var vw=380,vh=320,pad=36, sc=Math.min((vw-2*pad)/outL,(vh-2*pad)/outW);
+    var bw=outL*sc,bh=outW*sc,ox=(vw-bw)/2,oy=(vh-bh)/2,ix=ox+wall*sc,iy=oy+wall*sc;
+    var INK="#0f2233",ACC="#0e6f93",WALL="#cdd9e1",VES="#d4ecf5",GRP="#0a4d68"; var p=[];
+    p.push('<rect x="'+ox+'" y="'+oy+'" width="'+bw+'" height="'+bh+'" fill="'+WALL+'" stroke="'+INK+'" stroke-width="1.5"/>');
+    p.push('<rect x="'+ix+'" y="'+iy+'" width="'+(intL*sc)+'" height="'+(intW*sc)+'" fill="#fff" stroke="'+INK+'" stroke-width="1"/>');
+    if(split>0){ var gy=iy+(yc[split-1]+dia/2)*sc, gh=aisleW*sc;
+      p.push('<rect x="'+ix+'" y="'+gy+'" width="'+(intL*sc)+'" height="'+gh+'" fill="#eef5f9"/>');
+      p.push('<text x="'+(ix+intL*sc/2)+'" y="'+(gy+gh/2+3)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="'+ACC+'">drive aisle '+fmt(aisleW,0)+"'</text>"); }
+    // per-row fill: with an aisle, fill in rings from the aisle outward and mirror the two banks
+    var rowFill=new Array(rows); for(var z=0;z<rows;z++) rowFill[z]=0;
+    if(split>0){
+      var rem=count, k=0;
+      while(rem>0){
+        var ring=[]; var tr=split-1-k, br=split+k;
+        if(tr>=0) ring.push(tr); if(br<rows) ring.push(br);
+        if(!ring.length) break;
+        var cap=ring.length*cols;
+        if(rem>=cap){ for(var q=0;q<ring.length;q++) rowFill[ring[q]]=cols; rem-=cap; }
+        else { var pairs=Math.floor(rem/2), n=ring.length, base=Math.floor(pairs/n), extra=pairs-base*n;
+          for(var q2=0;q2<n;q2++){ rowFill[ring[q2]]=(base+(q2<extra?1:0))*2; } rem=0; }
+        k++;
+      }
+    } else { var rem2=count; for(var r2=0;r2<rows;r2++){ var c2=Math.min(cols,rem2); rowFill[r2]=c2; rem2-=c2; } }
+    var rr=dia/2*sc;
+    for(var ri=0;ri<rows;ri++){ var fillN=rowFill[ri];
+      for(var ci=0;ci<fillN;ci++){
+        if(gsize>1 && ci%gsize===0){
+          var endIdx=Math.min(ci+gsize-1, fillN-1);
+          if(endIdx>ci){
+            var gx=ix+(xc[ci]-dia/2-1.5)*sc, gw=(xc[endIdx]-xc[ci]+dia+3)*sc;
+            var gy2=iy+(yc[ri]-dia/2-1.5)*sc, gh2=(dia+3)*sc;
+            p.push('<rect x="'+gx+'" y="'+gy2+'" width="'+gw+'" height="'+gh2+'" rx="4" fill="none" stroke="'+GRP+'" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>');
+            if(vpt>1)
+              p.push('<line x1="'+(ix+xc[ci]*sc)+'" y1="'+(iy+yc[ri]*sc)+'" x2="'+(ix+xc[endIdx]*sc)+'" y2="'+(iy+yc[ri]*sc)+'" stroke="'+GRP+'" stroke-width="1.4" opacity="0.55"/>');
+          }
+        }
+        p.push('<circle cx="'+(ix+xc[ci]*sc)+'" cy="'+(iy+yc[ri]*sc)+'" r="'+rr+'" fill="'+VES+'" stroke="'+ACC+'" stroke-width="1.1"/>');
+      }
+    }
+    planDims(p,ox,oy,bw,bh,outL,outW); svg.innerHTML=p.join("");
+    return {cols:cols,rows:rows,intL:intL,intW:intW,outL:outL,outW:outW,area:outL*outW};
+  }
+
+  function drawFilterPlan(cells,rows,cellL,cellW,cw,ew,gal){
+    var svg=$("plan");
+    rows=Math.max(1,Math.round(rows)); cells=Math.max(0,Math.round(cells));
+    var cols=Math.max(1,Math.ceil(cells/rows));
+    var nMod=Math.ceil(rows/2), top=[], bands=[], y=0, ri=0;
+    for(var m=0;m<nMod;m++){
+      var rim=(m<nMod-1)?2:(rows-2*(nMod-1));
+      if(rim>=2){ top[ri++]=y; if(gal>0) bands.push(y+cellW); y+=cellW+(gal>0?gal:0); top[ri++]=y; y+=cellW; }
+      else { top[ri++]=y; y+=cellW; if(gal>0){ bands.push(y); y+=gal; } }
+      if(m<nMod-1) y+=cw;
+    }
+    var intW=y;
+    var lx=[]; for(var c=0;c<cols;c++) lx.push(c*(cellL+cw));
+    var intL=lx[cols-1]+cellL, outL=intL+2*ew, outW=intW+2*ew;
+    var vw=380,vh=320,pad=36, sc=Math.min((vw-2*pad)/outL,(vh-2*pad)/outW);
+    var bw=outL*sc,bh=outW*sc,ox=(vw-bw)/2,oy=(vh-bh)/2;
+    var INK="#0f2233",ACC="#0e6f93",WALL="#cdd9e1",CELL="#d4ecf5"; var p=[];
+    p.push('<rect x="'+ox+'" y="'+oy+'" width="'+bw+'" height="'+bh+'" fill="'+WALL+'" stroke="'+INK+'" stroke-width="1.5"/>');
+    if(gal>0){ for(var g=0;g<bands.length;g++){ var gy=oy+(ew+bands[g])*sc, gh=gal*sc;
+      p.push('<rect x="'+(ox+ew*sc)+'" y="'+gy+'" width="'+(intL*sc)+'" height="'+gh+'" fill="#eef5f9"/>');
+      if(g===0) p.push('<text x="'+(ox+(ew+intL/2)*sc)+'" y="'+(gy+gh/2+3)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="'+ACC+'">pipe gallery '+fmt(gal,0)+"'</text>"); } }
+    var placed=0;
+    for(var rr=0;rr<rows;rr++){ for(var ci=0;ci<cols;ci++){ if(placed>=cells) break;
+      p.push('<rect x="'+(ox+(ew+lx[ci])*sc)+'" y="'+(oy+(ew+top[rr])*sc)+'" width="'+(cellL*sc)+'" height="'+(cellW*sc)+'" fill="'+CELL+'" stroke="'+ACC+'" stroke-width="1.1"/>'); placed++; }}
+    planDims(p,ox,oy,bw,bh,outL,outW); svg.innerHTML=p.join("");
+    return {cols:cols,rows:rows,intL:intL,intW:intW,outL:outL,outW:outW,area:outL*outW,gal:bands.length};
+  }
+
+  function fillLayout(L,count){
+    $("ol_count").textContent=fmt(count,0); $("ol_grid").textContent=L.cols+" \u00d7 "+L.rows;
+    $("ol_intL").textContent=fmt(L.intL,1)+" ft"; $("ol_intW").textContent=fmt(L.intW,1)+" ft";
+    $("ol_outL").textContent=fmt(L.outL,1)+" ft"; $("ol_outW").textContent=fmt(L.outW,1)+" ft";
+    $("ol_area").textContent=fmt(L.area,0)+" sf"; $("ol_acre").textContent=fmt(L.area/43560,3)+" ac";
+  }
+
+  function compute(){
+    var fv=num($("flow").value), unit=$("unit").value, hasFlow=$("flow").value.trim()!=="" && fv>0;
+    var gpm=unit==="mgd"?fv*FLOWK:fv;
+    var hlrLo=num($("c_hlr_lo").value), hlrHi=num($("c_hlr_hi").value), ebMin=num($("c_ebct").value);
+    var exppct=num($("c_exp").value), fbmin=num($("c_fbmin").value);
+    var totMass=0, eqQty=0, eqLab="";
+    var bwArea=0, bwBedVol=0, bwEbct=0, bwDens=0.485, unitWord="vessel", bwUnits=0;
+    var fPlan=null, fCells=0, fCellArea=0, fTotArea=0;
+
+    if(mode==="vessel"){
+      var dia=num($("dia").value), swd=num($("swd").value), dens=num($("dens").value);
+      var area=Math.PI/4*dia*dia, lbcf=dens*LBCF, depth, mass, mvcf;
+      if(S.basis==="mass"){ mass=num($("mass").value); mvcf=lbcf>0?mass/lbcf:0; depth=area>0?mvcf/area:0; }
+      else { depth=num($("depth").value); mvcf=depth*area; mass=mvcf*lbcf; }
+      var vpt=S.config==="leadlag"?2:1, bvgal=depth*area*GAL;
+      var N=num($("trains").value), R=S.redun, totTrains=N+R, totVessels=totTrains*vpt; bwUnits=totVessels;
+      var inSvc=(S.inserv==="duty")?N:totTrains;
+      var xdepth=depth*(1+exppct/100), fb=swd-xdepth;
+      var qv=(hasFlow&&inSvc>0)?gpm/inSvc:0;
+      var hlr=(qv>0&&area>0)?qv/area:0, ebctv=(qv>0&&bvgal>0)?bvgal/qv:0;
+      bwArea=area; bwBedVol=bvgal; bwEbct=ebctv; bwDens=dens; unitWord="vessel";
+      $("o_inst_note").textContent=N+" + "+R+" = "+(N+R)+" inst.";
+      $("ov_lblexp").textContent=fmt(exppct,0);
+      $("ov_ebctv").textContent=qv>0?fmt(ebctv,1)+" min":"—"; if(qv>0) badge($("bv_ebct"),rnd(ebctv,1)>=ebMin-1e-9); else clr($("bv_ebct"));
+      $("ov_ebctpt").textContent=qv>0?fmt(ebctv*vpt,1)+" min":"—";
+      $("ov_hlr").textContent=qv>0?fmt(hlr,2)+" gpm/sf":"—"; if(qv>0) badge($("bv_hlr"),rnd(hlr,2)>=hlrLo-1e-9&&rnd(hlr,2)<=hlrHi+1e-9); else clr($("bv_hlr"));
+      $("ov_depthv").textContent=fmt(depth,2)+" ft"; $("ov_depthpt").textContent=fmt(depth*vpt,2)+" ft";
+      $("ov_xdepthv").textContent=fmt(xdepth,2)+" ft";
+      var fbc=$("ov_fb"); fbc.textContent=fmt(fb,2)+" ft"; fbc.style.color=rnd(fb,2)<fbmin?"var(--ng)":""; badge($("bv_fb"),rnd(fb,2)>=fbmin-1e-9);
+      $("ov_vpt").textContent=vpt; $("ov_vinst").textContent=fmt(totVessels,0); $("ov_vsvc").textContent=fmt(inSvc*vpt,0);
+      $("ov_qmgd").textContent=qv>0?fmt(qv/FLOWK,3)+" mgd":"—"; $("ov_qmgdT").textContent=hasFlow?fmt(gpm/FLOWK,2)+" mgd":"—";
+      $("ov_qgpm").textContent=qv>0?fmt(qv,0)+" gpm":"—"; $("ov_qgpmT").textContent=hasFlow?fmt(gpm,0)+" gpm":"—";
+      $("ov_area").textContent=fmt(area,1)+" sf"; $("ov_areaT").textContent=fmt(area*totTrains,0)+" sf";
+      $("ov_bvpt").textContent=fmt(bvgal*vpt,0)+" gal"; $("ov_bvT").textContent=fmt(bvgal*totVessels,0)+" gal";
+      $("ov_mvpt").textContent=fmt(mvcf*vpt,0)+" cf"; $("ov_mvT").textContent=fmt(mvcf*totVessels,0)+" cf";
+      $("ov_masspt").textContent=fmt(mass*vpt,0)+" lb"; $("ov_massT").textContent=fmt(mass*totVessels,0)+" lb";
+      $("figcapV").textContent=(vpt===2?"Lead vessel shown · lag identical, in series":"Single-stage vessel");
+      var Lv=drawVesselPlan(totVessels,Math.max(1,Math.round(num($("v_perrow").value))),dia,vpt,num($("v_strain").value),num($("v_sadj").value),num($("v_srow").value),num($("v_perim").value),num($("v_wall").value),S.aisle==="on",num($("v_aisle").value),S.tree==="on");
+      fillLayout(Lv,totVessels); $("ol_unitlab").textContent="Vessels placed";
+      document.querySelectorAll(".lfonly").forEach(function(el){el.style.display="none";});
+      $("figcapL").textContent=Lv.cols+" \u00d7 "+Lv.rows+" \u00b7 "+fmt(Lv.outL,0)+"' \u00d7 "+fmt(Lv.outW,0)+"' building";
+      drawVessel(dia,swd,depth,xdepth);
+      gaugeSVG($("gfigV"),{lr:hlr,lrMax:Math.max(hlrHi*1.3,hlr*1.1,hlrHi+3),lrLo:hlrLo,lrHi:hlrHi,lrPass:(rnd(hlr,2)>=hlrLo-1e-9&&rnd(hlr,2)<=hlrHi+1e-9),lrAxis:"HLR",
+        eb:ebctv,ebMax:Math.max(ebMin*2.2,ebctv*1.1,ebMin+12),ebMin:ebMin,ebPass:(rnd(ebctv,1)>=ebMin-1e-9),ebAxis:"EBCT",has:qv>0});
+      totMass=mass*totVessels; eqQty=totVessels; eqLab="vessels";
+    } else {
+      var L=Math.round(num($("f_len").value)/2)*2, W=Math.round(num($("f_wid").value)/2)*2;
+      var R=S.fredun;
+      var fdepth=num($("f_depth").value), fdens=num($("f_dens").value), above=num($("f_above").value);
+      var flbcf=fdens*LBCF, cellArea=L*W;
+      // auto DUTY cells (even) to satisfy HLR<=hi and EBCT>=min with duty in service
+      var nHLR=(hlrHi>0&&cellArea>0)?gpm/(hlrHi*cellArea):0;
+      var nEBCT=(cellArea>0&&fdepth>0)?ebMin*gpm/(cellArea*fdepth*GAL):0;
+      var duty=0;
+      if(hasFlow&&cellArea>0){ var n0=Math.ceil(Math.max(nHLR,nEBCT,1)); duty=n0+(n0%2); if(duty<2)duty=2; }
+      var installed=duty+R;
+      var dutyArea=duty*cellArea, instArea=installed*cellArea;
+      var rateFirm=(dutyArea>0)?gpm/dutyArea:0;           // duty in service (R out) = design check
+      var rateNorm=(instArea>0)?gpm/instArea:0;           // all installed in service
+      var bvgalc=cellArea*fdepth*GAL, mvcfc=cellArea*fdepth, massc=mvcfc*flbcf;
+      var ebct=(gpm>0&&dutyArea>0)?(dutyArea*fdepth*GAL)/gpm:0;  // firm EBCT (duty in svc)
+      var xdepth=fdepth*(1+exppct/100), fb=above-(xdepth-fdepth);
+      bwArea=cellArea; bwBedVol=bvgalc; bwEbct=ebct; bwDens=fdens; unitWord="cell"; bwUnits=installed;
+      $("of_lblexp").textContent=fmt(exppct,0);
+      $("of_cell").textContent=fmt(W,0)+"' \u00d7 "+fmt(L,0)+"' = "+fmt(cellArea,0)+" sf";
+      $("of_cells").textContent=duty>0?fmt(duty,0):"—";
+      $("of_inst").textContent=installed>0?fmt(installed,0)+" (N+"+fmt(R,0)+")":"—";
+      $("of_rate").textContent=rateFirm>0?fmt(rateFirm,2)+" gpm/sf":"—"; if(rateFirm>0) badge($("bf_rate"),rnd(rateFirm,2)>=hlrLo-1e-9&&rnd(rateFirm,2)<=hlrHi+1e-9); else clr($("bf_rate"));
+      $("of_ratenorm").textContent=rateNorm>0?fmt(rateNorm,2)+" gpm/sf":"—";
+      $("of_ebct").textContent=ebct>0?fmt(ebct,1)+" min":"—"; if(ebct>0) badge($("bf_ebct"),rnd(ebct,1)>=ebMin-1e-9); else clr($("bf_ebct"));
+      $("of_areapc").textContent=fmt(cellArea,0)+" sf"; $("of_area").textContent=installed>0?fmt(instArea,0)+" sf":"—";
+      $("of_bvpc").textContent=fmt(bvgalc,0)+" gal"; $("of_bvT").textContent=fmt(bvgalc*installed,0)+" gal";
+      $("of_mvpc").textContent=fmt(mvcfc,0)+" cf"; $("of_mvT").textContent=fmt(mvcfc*installed,0)+" cf";
+      $("of_masspc").textContent=fmt(massc,0)+" lb"; $("of_massT").textContent=fmt(massc*installed,0)+" lb";
+      $("of_xdepth").textContent=fmt(xdepth,2)+" ft";
+      var fbc2=$("of_fb"); fbc2.textContent=fmt(fb,2)+" ft"; fbc2.style.color=rnd(fb,2)<fbmin?"var(--ng)":""; badge($("bf_fb"),rnd(fb,2)>=fbmin-1e-9);
+      $("figcapF").textContent=duty+" duty + "+R+" standby = "+installed+" cells @ "+fmt(W,0)+"'x"+fmt(L,0)+"'";
+      var rowsF=Math.max(1,Math.round(num($("f_rows").value)));
+      var Lf=drawFilterPlan(installed,rowsF,L,W,num($("f_cw").value)/12,num($("f_ew").value)/12,num($("f_gal").value));
+      fillLayout(Lf,installed); $("ol_unitlab").textContent="Cells placed";
+      fPlan=Lf; fCells=installed; fCellArea=cellArea; fTotArea=instArea;
+      document.querySelectorAll(".lfonly").forEach(function(el){el.style.display="";});
+      $("ol_cell").textContent=fmt(W,0)+"' \u00d7 "+fmt(L,0)+"' ("+fmt(cellArea,0)+" sf)";
+      $("figcapL").textContent=Lf.cols+" \u00d7 "+Lf.rows+" \u00b7 "+Lf.gal+" gallery"+(Lf.gal===1?"":"s")+" \u00b7 "+fmt(Lf.outL,0)+"' \u00d7 "+fmt(Lf.outW,0)+"' basin";
+      drawFilter(fdepth,xdepth,above);
+      gaugeSVG($("gfigF"),{lr:rateFirm,lrMax:Math.max(hlrHi*1.3,rateFirm*1.1,hlrHi+3),lrLo:hlrLo,lrHi:hlrHi,lrPass:(rnd(rateFirm,2)>=hlrLo-1e-9&&rnd(rateFirm,2)<=hlrHi+1e-9),lrAxis:"Rate",
+        eb:ebct,ebMax:Math.max(ebMin*2.2,ebct*1.1,ebMin+12),ebMin:ebMin,ebPass:(rnd(ebct,1)>=ebMin-1e-9),ebAxis:"EBCT",has:ebct>0});
+      totMass=massc*installed; eqQty=installed; eqLab="cells";
+    }
+    // backwash & media life (shared, per unit of current mode)
+    var bwRate=num($("bw_rate").value), durInit=num($("bw_init").value), durRout=num($("bw_routine").value);
+    var capVal=num($("cap_val").value), capUnit=$("cap_unit").value;
+    var bv=(capUnit==="Lkg")?capVal*bwDens:capVal;  // L/kg x kg/L = BV
+    $("cap_conv").textContent=(capUnit==="Lkg")?("\u2192 "+fmt(bv,0)+" BV"):("\u2192 "+fmt(bwDens>0?bv/bwDens:0,0)+" L/kg");
+    $("bw_unitlab").textContent=(unitWord==="vessel")?"Per vessel":"Per cell";
+    var bwFlow=bwRate*bwArea, bwVol=bwFlow*durRout, bwStart=bwFlow*durInit*bwUnits;
+    $("o_bwflow").textContent=bwArea>0?fmt(bwFlow,0)+" gpm":"—";
+    $("o_bwvol").textContent=bwArea>0?fmt(bwVol,0)+" gal":"—";
+    $("o_bwstart").textContent=(bwArea>0&&bwUnits>0)?fmt(bwStart,0)+" gal ("+fmt(bwUnits,0)+" units \u00d7 "+fmt(durInit,0)+" min)":"—";
+    $("o_bv").textContent=fmt(bv,0)+" BV";
+    $("o_thru").textContent=bwBedVol>0?fmt(bv*bwBedVol,0)+" gal":"—";
+    var lifeDays=(bwEbct>0)?bv*bwEbct/1440:0;
+    $("o_life").textContent=lifeDays>0?(fmt(lifeDays,0)+" days ("+fmt(lifeDays/365,2)+" yr)"):"—";
+  }
+
+  // events
+  $("mode").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setMode(this.getAttribute("data-v")); }); });
+  $("basis").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){
+    var nb=this.getAttribute("data-v");
+    if(nb!==S.basis){ if(nb==="depth"){ $("depth").value=fmt(curDepth(),2); } else { var a=areaOf(),l=num($("dens").value)*LBCF; $("mass").value=fmt(num($("depth").value)*a*l,0); } }
+    setBasis(nb); compute(); }); });
+  $("config").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setSeg("config","config",this.getAttribute("data-v")); compute(); }); });
+  $("redun").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setSeg("redun","redun",num(this.getAttribute("data-v"))); compute(); }); });
+  $("inserv").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setSeg("inserv","inserv",this.getAttribute("data-v")); compute(); }); });
+  (function(){ var r=$("trains_s"),n=$("trains");
+    r.addEventListener("input",function(){ n.value=this.value; compute(); });
+    n.addEventListener("input",function(){ var v=num(this.value); r.value=Math.min(Math.max(v,+r.min),+r.max); compute(); }); })();
+  $("dia").addEventListener("change",function(){ var d=num(this.value),info=DIAM[d]; if(info){ if(S.basis==="mass") $("mass").value=fmt(info.mass,0); $("swd").value=info.ssh; } compute(); });
+  $("unit").addEventListener("change",function(){ var nu=this.value;
+    if(nu!==lastUnit && $("flow").value.trim()!==""){ var f=num($("flow").value); $("flow").value=(nu==="gpm")?fmt(Math.round(f*FLOWK),0):fmt(Math.round(f/FLOWK),0); }
+    lastUnit=nu; compute(); });
+  ["swd","dens","depth","f_dens","f_above","f_rows","f_cw","f_ew","f_gal","v_perrow","v_strain","v_sadj","v_srow","v_perim","v_wall","v_aisle"].forEach(function(id){ $(id).addEventListener("input",compute); });
+  function slLinkEven(rid,nid){ var r=$(rid),n=$(nid);
+    r.addEventListener("input",function(){ n.value=this.value; compute(); });
+    n.addEventListener("input",function(){ var v=Math.round(num(this.value)/2)*2; v=Math.min(Math.max(v,+r.min),+r.max); r.value=v; compute(); });
+    n.addEventListener("blur",function(){ var v=Math.round(num(this.value)/2)*2; v=Math.min(Math.max(v,+r.min),+r.max); this.value=v; r.value=v; }); }
+  slLinkEven("f_len_s","f_len"); slLinkEven("f_wid_s","f_wid");
+  (function(){ var r=$("f_depth_s"), n=$("f_depth");
+    r.addEventListener("input",function(){ n.value=this.value; compute(); });
+    n.addEventListener("input",function(){ var v=Math.round(num(this.value)*2)/2; v=Math.min(Math.max(v,+r.min),+r.max); r.value=v; compute(); });
+    n.addEventListener("blur",function(){ var v=Math.round(num(this.value)*2)/2; v=Math.min(Math.max(v,+r.min),+r.max); this.value=v; r.value=v; }); })();
+  $("flow").addEventListener("input",compute);
+  $("mass").addEventListener("input",compute);
+  $("mass").addEventListener("blur",function(){ this.value=fmt(num(this.value),0); });
+  ["c_hlr_lo","c_hlr_hi","c_ebct","c_exp","c_fbmin","bw_rate","bw_init","bw_routine","cap_val"].forEach(function(id){ $(id).addEventListener("input",compute); });
+  $("f_redun").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setSeg("f_redun","fredun",num(this.getAttribute("data-v"))); compute(); }); });
+  $("v_aisle_seg").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setSeg("v_aisle_seg","aisle",this.getAttribute("data-v")); compute(); }); });
+  $("v_tree").querySelectorAll("button").forEach(function(b){ b.addEventListener("click",function(){ setSeg("v_tree","tree",this.getAttribute("data-v")); compute(); }); });
+  var lastCap="BV";
+  $("cap_unit").addEventListener("change",function(){
+    var nu=this.value, dens=num($("f_dens").value)||num($("dens").value)||0.485;
+    if(nu!==lastCap && $("cap_val").value.trim()!==""){ var v=num($("cap_val").value);
+      $("cap_val").value=(nu==="BV")?fmt(Math.round(v*dens),0):fmt(Math.round(dens>0?v/dens:0),0); }
+    lastCap=nu; compute(); });
+  $("cap_unit").addEventListener("change",compute);
+  $("resetbtn").addEventListener("click",function(){ location.reload(); });
+
+
+  // init
+  setBasis("mass"); setSeg("config","config","single"); setSeg("redun","redun",2); setSeg("inserv","inserv","duty"); setSeg("f_redun","fredun",2); setSeg("v_aisle_seg","aisle","on"); setSeg("v_tree","tree","on");
+  $("m_date").value=new Date().toLocaleDateString("en-US");
+  setMode("vessel"); compute();
+})();
+</script>
+</body>
+</html>
