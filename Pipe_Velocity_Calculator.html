@@ -9,12 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#10151c; --paper:#f4f1ea; --panel:#ffffff;
-    --line:#d6d0c4; --line-strong:#b7b0a1; --muted:#6b6457;
-    --accent:#0b5e6b; --accent-2:#c75300;
+    --ink:#0f2233; --paper:#e9f1f6; --panel:#ffffff;
+    --line:#c9d8e2; --line-strong:#a4bccb; --muted:#566b79;
+    --accent:#0e6f93; --accent-d:#0a4d68; --accent-2:#e08a2b;
     --ok:#1f7a44; --ok-bg:#e2f1e7; --ng:#b3261e; --ng-bg:#fae5e3;
-    --grid:rgba(11,94,107,.06);
-    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 24px -16px rgba(16,21,28,.35);
+    --grid:rgba(14,111,147,.07);
+    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 24px -16px rgba(15,34,51,.4);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -25,6 +25,10 @@
   .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;}
   .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
 
+  .hbtns{display:flex;gap:8px;margin-top:10px;}
+  .hbtn{font-family:"IBM Plex Sans",sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;text-decoration:none;padding:6px 12px;border:1.5px solid currentColor;transition:.12s;}
+  .hbtn.back{color:var(--accent);} .hbtn.back:hover{background:var(--accent);color:#fff;}
+  .hbtn.reset{color:var(--accent-2);} .hbtn.reset:hover{background:var(--accent-2);color:#fff;}
   .resetbtn{font-family:"IBM Plex Sans",sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.5px;
     text-transform:uppercase;cursor:pointer;background:transparent;color:var(--accent-2);
     border:1.5px solid var(--accent-2);padding:6px 12px;margin-top:10px;align-self:flex-start;transition:.12s;}
@@ -48,7 +52,7 @@
 
   .card{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);}
   .card > .cap{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#fff;
-    background:var(--ink);padding:7px 14px;display:flex;align-items:center;gap:9px;}
+    background:linear-gradient(90deg,var(--accent-d),var(--accent));padding:8px 14px;display:flex;align-items:center;gap:9px;}
   .card > .cap::before{content:"";width:7px;height:7px;background:var(--accent-2);display:inline-block;}
   .card .body{padding:14px 16px 18px;}
 
@@ -78,13 +82,14 @@
 
   .diagram{display:flex;justify-content:center;align-items:center;padding:6px 0 2px;}
   .diagram svg{width:100%;max-width:340px;height:auto;}
+  .chartwrap{padding:6px 4px 2px;} .chartwrap svg{width:100%;height:auto;display:block;}
 
   table.tbl{width:100%;border-collapse:collapse;font-size:12px;}
   table.tbl th,table.tbl td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;}
   table.tbl th{background:#fbfaf7;color:var(--ink);font-weight:600;text-transform:uppercase;font-size:10px;
     letter-spacing:.6px;border-bottom:1px solid var(--line-strong);position:sticky;top:0;}
   table.tbl td:first-child,table.tbl th:first-child,
-  table.tbl td:nth-child(2),table.tbl th:nth-child(2),
+  table.tbl td:nth-child(3),table.tbl th:nth-child(3),
   table.tbl td:nth-child(4),table.tbl th:nth-child(4){text-align:left;}
   table.tbl td.mono{font-family:"IBM Plex Mono",monospace;font-weight:600;}
   table.tbl tr:hover td{background:#fbfaf7;}
@@ -110,7 +115,10 @@
       <div class="main">
         <h1>Pipe Velocity &amp; Headloss</h1>
         <p>DIP / PVC / HDPE &middot; inside diameter, full-pipe velocity, velocity head, Hazen-Williams loss</p>
-        <button class="resetbtn" id="resetbtn" title="Restore defaults and clear table">&#8635; Reset</button>
+        <div class="hbtns">
+          <a class="hbtn back" href="index.html">&larr; Calculators</a>
+          <button class="hbtn reset" id="resetbtn" title="Restore defaults and clear table">&#8635; Reset</button>
+        </div>
       </div>
       <div class="meta">
         <label>Project <input id="m_proj" placeholder="—"></label>
@@ -127,15 +135,6 @@
     <section class="card">
       <div class="cap">Pipe &amp; flow</div>
       <div class="body">
-
-        <div class="row">
-          <div class="lab"><span>Service</span></div>
-          <select class="val" id="svc">
-            <option>Influent</option><option>Effluent</option><option>Raw water</option>
-            <option>Finished water</option><option>Backwash supply</option><option>Backwash waste</option>
-            <option>Residuals</option><option>Other</option>
-          </select>
-        </div>
 
         <div class="row">
           <div class="lab"><span>Pipe material</span></div>
@@ -188,8 +187,8 @@
         <div class="subhdr" style="margin-top:6px;">Flow</div>
         <div class="two">
           <div class="row">
-            <div class="lab"><span>Total flow</span><span class="unit">mgd</span></div>
-            <input type="text" class="val mono" id="flow" value="60">
+            <div class="lab"><span>Total flow</span><span class="unit" id="flowconv">694,444 gpm</span></div>
+            <div style="display:flex;gap:6px;"><input type="text" class="val mono" id="flow" value="60" style="flex:1;"><select class="val" id="flowunit" style="width:auto;"><option value="mgd">mgd</option><option value="gpm">gpm</option></select></div>
           </div>
           <div class="row">
             <div class="lab"><span>Flow fraction</span><span class="unit">0–1, 4 dp</span></div>
@@ -210,7 +209,7 @@
     <section class="card">
       <div class="cap">Cross-section &amp; computed</div>
       <div class="body">
-        <div class="diagram"><svg id="sec" viewBox="0 0 360 230"></svg></div>
+        <div class="diagram"><svg id="sec" viewBox="0 0 360 268"></svg></div>
 
         <div class="subhdr" style="margin-top:10px;">Geometry</div>
         <div class="derived">
@@ -234,6 +233,15 @@
     </section>
   </div>
 
+  <!-- ====== CHART ====== -->
+  <section class="card" style="margin-top:18px;">
+    <div class="cap">Velocity vs flow</div>
+    <div class="body">
+      <div class="chartwrap"><svg id="chart" viewBox="0 0 720 300"></svg></div>
+      <div class="note" style="margin-top:8px;">Velocity (y) versus flow (x) for the current pipe, flowing full, over 0–12 ft/s. The marker is the entered flow. Shaded band marks a typical transmission-main range of 2–7 ft/s.</div>
+    </div>
+  </section>
+
   <!-- ====== TABLE ====== -->
   <section class="card" style="margin-top:18px;">
     <div class="cap">Schedule</div>
@@ -241,7 +249,7 @@
       <div class="tblwrap">
         <table class="tbl" id="tbl">
           <thead><tr>
-            <th>Service</th><th>Material</th><th>Size</th><th>Class / Sch / DR</th><th>Lining</th>
+            <th>Material</th><th>Size</th><th>Class / Sch / DR</th><th>Lining</th>
             <th>ID (in)</th><th>C</th><th>Flow (mgd)</th><th>Frac</th><th>Q used (mgd)</th>
             <th>Area (ft²)</th><th>V (ft/s)</th><th>Vel head (ft)</th><th>HL (ft/100ft)</th><th></th>
           </tr></thead>
@@ -290,6 +298,12 @@
     36:{50:.43,51:.48,52:.53,53:.58,54:.63,55:.68,56:.73},42:{50:.47,51:.53,52:.59,53:.65,54:.71,55:.77,56:.83},
     48:{50:.51,51:.58,52:.65,53:.72,54:.79,55:.86,56:.93},54:{50:.57,51:.65,52:.73,53:.81,54:.89,55:.97,56:1.05}};
   function dipLining(sz){ if(sz<=12)return 0.0625; if(sz<=24)return 0.09375; return 0.125; }
+  // offer all standard pressure classes for every size; below the minimum standard,
+  // wall is floored at the size's thinnest standard (you cannot make DIP thinner), so ID is unchanged
+  (function(){ var all=[150,200,250,300,350];
+    Object.keys(DIP_PC).forEach(function(sz){ var t=DIP_PC[sz];
+      var mn=Math.min.apply(null,Object.keys(t).map(function(k){return t[k];}));
+      all.forEach(function(c){ if(t[c]==null) t[c]=mn; }); }); })();
 
   var PVC={2:{od:2.375,40:.154,80:.218},3:{od:3.500,40:.216,80:.300},4:{od:4.500,40:.237,80:.337},
     6:{od:6.625,40:.280,80:.432},8:{od:8.625,40:.322,80:.500},10:{od:10.750,40:.365,80:.593},
@@ -305,7 +319,8 @@
 
   // ---------- DOM refs ----------
   var matSel=$("mat"), basisSel=$("basis"), sizeSel=$("size"), clsSel=$("cls"), linSel=$("lining");
-  var rows=[];
+  var rows=[]; var flowUnit="mgd"; var MGD_GPM=1e6/1440;
+  function flowMGD(){ var v=num($("flow").value); return flowUnit==="gpm"? v/MGD_GPM : v; }
 
   function opt(v,t){var o=document.createElement("option");o.value=v;o.textContent=t;return o;}
 
@@ -321,7 +336,7 @@
   }
 
   function fillClasses(){
-    var m=matSel.value; clsSel.innerHTML="";
+    var m=matSel.value, prev=clsSel.value; clsSel.innerHTML="";
     if(m==="dip"){
       var sz=num(sizeSel.value);
       var tbl=basisSel.value==="pc"?DIP_PC[sz]:DIP_TC[sz];
@@ -331,12 +346,15 @@
     } else if(m==="pvc"){
       $("lbl_class").textContent="Schedule";
       clsSel.appendChild(opt("40","Sch 40")); clsSel.appendChild(opt("80","Sch 80"));
-      clsSel.value="80";
     } else {
       $("lbl_class").textContent="DR (dimension ratio)";
       HDPE_DR.forEach(function(d){ clsSel.appendChild(opt(d,"DR "+d)); });
-      clsSel.value="17";
     }
+    // retain previous class across size/basis changes when still available
+    if(prev && clsSel.querySelector('option[value="'+prev+'"]')) clsSel.value=prev;
+    else if(m==="pvc") clsSel.value="80";
+    else if(m==="hdpe") clsSel.value="17";
+    else if(m==="dip" && clsSel.querySelector('option[value="350"]')) clsSel.value="350";
   }
 
   function toggleMat(){
@@ -371,7 +389,7 @@
     }
     var id=od-2*wt-2*lin;
     var area=Math.PI/4*Math.pow(id/12,2);          // ft^2
-    var flow=num($("flow").value), frac=num($("frac").value);
+    var flow=flowMGD(), frac=num($("frac").value);
     var Q=flow*frac;                               // mgd
     var gpm=Q*1e6/1440, cfs=Q*1.547229;
     var V=area>0?cfs/area:0;                        // ft/s
@@ -380,7 +398,7 @@
     if(V>0&&C>0&&R>0){ var S=Math.pow(V/(1.318*C*Math.pow(R,0.63)),1/0.54); hl=S*100; }
     return {m:m,matName:(m==="dip"?"DIP":(m==="pvc"?"PVC":"HDPE")),sz:sz,od:od,wt:wt,lin:lin,id:id,
       cls:clsLabel,lining:(m==="dip"?({cement:"Cement",double:"Double cement",unlined:"Unlined"})[linSel.value]:"—"),
-      area:area,flow:flow,frac:frac,Q:Q,gpm:gpm,cfs:cfs,V:V,vh:vh,C:C,hl:hl,svc:$("svc").value};
+      area:area,flow:flow,frac:frac,Q:Q,gpm:gpm,cfs:cfs,V:V,vh:vh,C:C,hl:hl};
   }
 
   function drawSection(d){
@@ -400,16 +418,56 @@
     p.push('<line x1="'+(cx+Rout)+'" y1="16" x2="'+(cx+Rout)+'" y2="28" stroke="#10151c" stroke-width="1"/>');
     p.push('<text x="'+cx+'" y="13" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="#10151c">OD '+fmt(d.od,2)+'"</text>');
     // ID dim (through center)
-    p.push('<line x1="'+(cx-rBore)+'" y1="'+cy+'" x2="'+(cx+rBore)+'" y2="'+cy+'" stroke="#0b5e6b" stroke-width="1" stroke-dasharray="3 2"/>');
-    p.push('<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="#0b5e6b">ID '+fmt(d.id,2)+'"</text>');
+    p.push('<line x1="'+(cx-rBore)+'" y1="'+cy+'" x2="'+(cx+rBore)+'" y2="'+cy+'" stroke="#0e6f93" stroke-width="1" stroke-dasharray="3 2"/>');
+    p.push('<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="#0e6f93">ID '+fmt(d.id,2)+'"</text>');
     // WT callout (right)
     var wy=cy-Rout*0.62;
-    p.push('<line x1="'+(cx+Rout)+'" y1="'+wy+'" x2="'+(cx+Rout+34)+'" y2="'+wy+'" stroke="#c75300" stroke-width="1"/>');
-    p.push('<line x1="'+(cx+rWallIn)+'" y1="'+(cy-rWallIn*0.62)+'" x2="'+(cx+Rout+34)+'" y2="'+wy+'" stroke="#c75300" stroke-width="0.6"/>');
-    p.push('<text x="'+(cx+Rout+30)+'" y="'+(wy-5)+'" text-anchor="end" font-family="IBM Plex Mono" font-size="10.5" fill="#c75300">WT '+fmt(d.wt,3)+'"</text>');
+    p.push('<line x1="'+(cx+Rout)+'" y1="'+wy+'" x2="'+(cx+Rout+34)+'" y2="'+wy+'" stroke="#e08a2b" stroke-width="1"/>');
+    p.push('<line x1="'+(cx+rWallIn)+'" y1="'+(cy-rWallIn*0.62)+'" x2="'+(cx+Rout+34)+'" y2="'+wy+'" stroke="#e08a2b" stroke-width="0.6"/>');
+    p.push('<text x="'+(cx+Rout+30)+'" y="'+(wy-5)+'" text-anchor="end" font-family="IBM Plex Mono" font-size="10.5" fill="#e08a2b">WT '+fmt(d.wt,3)+'"</text>');
     // lining note
-    if(d.lin>0) p.push('<text x="'+cx+'" y="'+(cy+Rout+26)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#b08a4f">lining '+fmt(d.lin,4)+'" ea. side</text>');
-    p.push('<text x="'+cx+'" y="'+(cy+Rout+(d.lin>0?40:26))+'" text-anchor="middle" font-family="IBM Plex Sans" font-size="11" font-weight="600" fill="#6b6457">'+d.sz+'" '+d.matName+' &middot; '+d.cls+'</text>');
+    if(d.lin>0) p.push('<text x="'+cx+'" y="'+(cy+Rout+30)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#b08a4f">lining '+fmt(d.lin,4)+'" ea. side</text>');
+    p.push('<text x="'+cx+'" y="'+(cy+Rout+(d.lin>0?48:32))+'" text-anchor="middle" font-family="IBM Plex Sans" font-size="11" font-weight="600" fill="#6b6457">'+d.sz+'" '+d.matName+' &middot; '+d.cls+'</text>');
+    svg.innerHTML=p.join("");
+  }
+
+  function drawChart(d){
+    var svg=$("chart"); if(!svg) return;
+    var W=720,H=300, mL=58,mR=22,mT=16,mB=42, pw=W-mL-mR, ph=H-mT-mB;
+    var x0=mL, y0=mT, x1=W-mR, y1=H-mB;
+    var unit=flowUnit, area=d.area, vMax=12;
+    var p=[];
+    if(!(area>0)){ svg.innerHTML='<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" fill="#566b79">configure a pipe</text>'; return; }
+    // flow at vMax in display unit
+    var qmaxMGD=vMax*area/1.547229, qMax=unit==="gpm"?qmaxMGD*1e6/1440:qmaxMGD;
+    function yv(v){ return y1-(v/vMax)*ph; }
+    function xq(q){ return x0+(qMax>0?(q/qMax):0)*pw; }
+    // axes box
+    p.push('<rect x="'+x0+'" y="'+y0+'" width="'+pw+'" height="'+ph+'" fill="#fbfdfe" stroke="#a4bccb" stroke-width="1"/>');
+    // recommended band 2-7 ft/s
+    p.push('<rect x="'+x0+'" y="'+yv(7)+'" width="'+pw+'" height="'+(yv(2)-yv(7))+'" fill="#e2f1e7" opacity="0.7"/>');
+    p.push('<text x="'+(x1-6)+'" y="'+(yv(4.5)+3)+'" text-anchor="end" font-family="IBM Plex Mono" font-size="9.5" fill="#1f7a44">typical 2–7 ft/s</text>');
+    // y grid + labels every 2
+    for(var v=0;v<=vMax;v+=2){ var yy=yv(v);
+      p.push('<line x1="'+x0+'" y1="'+yy+'" x2="'+x1+'" y2="'+yy+'" stroke="#e3edf3" stroke-width="1"/>');
+      p.push('<text x="'+(x0-8)+'" y="'+(yy+3.5)+'" text-anchor="end" font-family="IBM Plex Mono" font-size="10" fill="#566b79">'+v+'</text>'); }
+    // x grid + labels (5 ticks)
+    for(var i=0;i<=5;i++){ var q=qMax*i/5, xx=xq(q);
+      p.push('<line x1="'+xx+'" y1="'+y0+'" x2="'+xx+'" y2="'+y1+'" stroke="#eef4f8" stroke-width="1"/>');
+      p.push('<text x="'+xx+'" y="'+(y1+15)+'" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#566b79">'+fmt(q, unit==="gpm"?0:1)+'</text>'); }
+    // the V(Q) line for this pipe (origin to qMax,vMax)
+    p.push('<line x1="'+xq(0)+'" y1="'+yv(0)+'" x2="'+xq(qMax)+'" y2="'+yv(vMax)+'" stroke="#0e6f93" stroke-width="2.5"/>');
+    // operating point
+    var qDisp=unit==="gpm"?d.Q*1e6/1440:d.Q, vNow=d.V, over=vNow>vMax;
+    var vC=Math.min(vNow,vMax), qC=Math.min(qDisp,qMax);
+    var px=xq(qC), py=yv(vC), col=over?"#b3261e":"#e08a2b";
+    p.push('<line x1="'+x0+'" y1="'+py+'" x2="'+px+'" y2="'+py+'" stroke="'+col+'" stroke-width="1" stroke-dasharray="3 2"/>');
+    p.push('<line x1="'+px+'" y1="'+y1+'" x2="'+px+'" y2="'+py+'" stroke="'+col+'" stroke-width="1" stroke-dasharray="3 2"/>');
+    p.push('<circle cx="'+px+'" cy="'+py+'" r="4.5" fill="'+col+'" stroke="#fff" stroke-width="1.5"/>');
+    p.push('<text x="'+(px+8)+'" y="'+(py-7)+'" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" fill="'+col+'">'+fmt(vNow,2)+' ft/s'+(over?" (off-scale)":"")+'</text>');
+    // axis titles
+    p.push('<text x="'+(x0+pw/2)+'" y="'+(H-6)+'" text-anchor="middle" font-family="IBM Plex Sans" font-size="11" font-weight="600" fill="#0f2233">Flow ('+unit+')</text>');
+    p.push('<text transform="translate(14,'+(y0+ph/2)+') rotate(-90)" text-anchor="middle" font-family="IBM Plex Sans" font-size="11" font-weight="600" fill="#0f2233">Velocity (ft/s)</text>');
     svg.innerHTML=p.join("");
   }
 
@@ -427,6 +485,9 @@
     $("o_vh").textContent=fmt(d.vh,3);
     $("o_hl").textContent=fmt(d.hl,3);
     drawSection(d);
+    drawChart(d);
+    var fl=num($("flow").value);
+    $("flowconv").textContent = flowUnit==="mgd" ? (fmt(fl*MGD_GPM,0)+" gpm") : (fmt(fl/MGD_GPM,4)+" mgd");
   }
 
   function renderTable(){
@@ -435,7 +496,7 @@
     rows.forEach(function(r,i){
       var tr=document.createElement("tr");
       tr.innerHTML=
-        '<td>'+r.svc+'</td><td>'+r.matName+'</td><td>'+r.sz+'"</td><td>'+r.cls+'</td><td>'+r.lining+'</td>'+
+        '<td>'+r.matName+'</td><td>'+r.sz+'"</td><td>'+r.cls+'</td><td>'+r.lining+'</td>'+
         '<td class="mono">'+fmt(r.id,2)+'</td><td class="mono">'+fmt(r.C,0)+'</td>'+
         '<td class="mono">'+fmt(r.flow,3)+'</td><td class="mono">'+fmt(r.frac,4)+'</td>'+
         '<td class="mono">'+fmt(r.Q,3)+'</td><td class="mono">'+fmt(r.area,3)+'</td>'+
@@ -449,10 +510,10 @@
   }
 
   function exportCSV(){
-    var head=["Service","Material","Size (in)","Class/Sch/DR","Lining","ID (in)","HW C","Flow (mgd)","Fraction","Q used (mgd)","Area (ft2)","Velocity (ft/s)","Velocity head (ft)","HL (ft/100ft)"];
+    var head=["Material","Size (in)","Class/Sch/DR","Lining","ID (in)","HW C","Flow (mgd)","Fraction","Q used (mgd)","Area (ft2)","Velocity (ft/s)","Velocity head (ft)","HL (ft/100ft)"];
     var lines=[head.join(",")];
     rows.forEach(function(r){
-      lines.push([r.svc,r.matName,r.sz,'"'+r.cls+'"',r.lining,r.id.toFixed(2),r.C,r.flow,r.frac.toFixed(4),r.Q.toFixed(4),r.area.toFixed(3),r.V.toFixed(2),r.vh.toFixed(3),r.hl.toFixed(3)].join(","));
+      lines.push([r.matName,r.sz,'"'+r.cls+'"',r.lining,r.id.toFixed(2),r.C,r.flow,r.frac.toFixed(4),r.Q.toFixed(4),r.area.toFixed(3),r.V.toFixed(2),r.vh.toFixed(3),r.hl.toFixed(3)].join(","));
     });
     var blob=new Blob([lines.join("\n")],{type:"text/csv"});
     var a=document.createElement("a"); a.href=URL.createObjectURL(blob);
@@ -467,7 +528,11 @@
   sizeSel.addEventListener("change",function(){ fillClasses(); refresh(); });
   clsSel.addEventListener("change",refresh);
   linSel.addEventListener("change",function(){ setDefaultC(); refresh(); });
-  ["flow","frac","cfac","svc"].forEach(function(id){ $(id).addEventListener("input",refresh); });
+  ["flow","frac","cfac"].forEach(function(id){ $(id).addEventListener("input",refresh); });
+  $("flowunit").addEventListener("change",function(){
+    var nu=this.value; if(nu!==flowUnit){ var v=num($("flow").value);
+      $("flow").value = nu==="gpm" ? fmt(Math.round(v*MGD_GPM),0).replace(/,/g,"") : (v/MGD_GPM).toFixed(4);
+      flowUnit=nu; } refresh(); });
   $("addbtn").addEventListener("click",function(){ rows.push(calc()); renderTable(); });
   $("csvbtn").addEventListener("click",exportCSV);
   $("clearbtn").addEventListener("click",function(){ if(rows.length&&confirm("Clear all rows?")){ rows=[]; renderTable(); } });
