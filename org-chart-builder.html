@@ -232,6 +232,7 @@ const TEMPLATE_CSV=[
 '#meta,title,[Project Name]',
 '#meta,subtitle,Project Organization Chart | [Client] | [Project No.]',
 '#meta,cardwidth,210',
+'#meta,stackfrom,4',
 '#group,Project Team,#008768',
 '#group,Design Disciplines,#FFCE00',
 'id,name,title,parent,line,kind,group,layout,note',
@@ -239,19 +240,14 @@ const TEMPLATE_CSV=[
 'director,[Name],Project Director,client,solid,person,,auto,',
 'pm,[Name],Project Manager,director,solid,person,,auto,',
 'advisor,[Name],Technical Advisor,pm,dotted,person,,auto,',
-'design-mgr,[Name],Design Manager,pm,solid,person,Project Team,auto,Deputy PM',
-'civil-lead,[Name],Civil Lead,design-mgr,solid,person,Project Team,auto,',
-'civil-staff,[Name],Civil Staff Engineer,civil-lead,solid,person,Project Team,auto,',
-'sw-lead,[Name],Stormwater Lead,design-mgr,solid,person,Project Team,auto,',
-'sw-eng,[Name],Stormwater Engineer,sw-lead,solid,person,Project Team,auto,',
-'process-mgr,[Name],Process & Permitting Manager,pm,solid,person,Project Team,auto,Deputy PM',
-'permit-coord,[Name],Permit Coordinator,process-mgr,solid,person,Project Team,auto,',
+'civil-head,[Name],Civil/Project Dept. Head,pm,solid,person,Project Team,auto,',
+'civil-eng,[Name],Civil Engineer,civil-head,solid,person,Project Team,auto,',
 'dh-struct,[Name],Structural Dept. Head,pm,solid,person,Design Disciplines,auto,',
-'struct-lead,[Name],Structural Lead,dh-struct,solid,person,Design Disciplines,auto,',
+'struct-eng,[Name],Structural Engineer,dh-struct,solid,person,Design Disciplines,auto,',
 'dh-elec,[Name],Electrical Dept. Head,pm,solid,person,Design Disciplines,auto,',
-'elec-lead,[Name],Electrical Lead,dh-elec,solid,person,Design Disciplines,auto,',
+'elec-eng,[Name],Electrical Engineer,dh-elec,solid,person,Design Disciplines,auto,',
 'dh-ic,[Name],Instrumentation & Controls Dept. Head,pm,solid,person,Design Disciplines,auto,',
-'ic-lead,[Name],I&C Lead,dh-ic,solid,person,Design Disciplines,auto,'
+'ic-eng,[Name],I&C Engineer,dh-ic,solid,person,Design Disciplines,auto,'
 ].join('\n');
 
 
